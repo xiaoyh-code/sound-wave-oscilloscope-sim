@@ -1,0 +1,378 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sound Wave Oscilloscope Simulation</title>
+  <style>
+    :root {
+      --bg: #f7f9fc;
+      --card: #ffffff;
+      --ink: #1f2937;
+      --muted: #6b7280;
+      --accent: #2563eb;
+      --line: #dbe3f1;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+      color: var(--ink);
+      background: linear-gradient(180deg, #f9fbff 0%, #eef3ff 100%);
+    }
+    .wrap {
+      max-width: 1100px;
+      margin: 20px auto;
+      padding: 0 16px 24px;
+      display: grid;
+      gap: 14px;
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid #e6ecf7;
+      border-radius: 14px;
+      box-shadow: 0 8px 30px rgba(18, 38, 63, 0.08);
+      padding: 14px;
+    }
+    h1 {
+      margin: 0;
+      font-size: 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+    }
+    .subtitle { color: var(--muted); font-size: .95rem; margin-top: 6px; }
+
+    .controls {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 12px;
+      align-items: end;
+    }
+    .control label {
+      font-size: .9rem;
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 6px;
+      color: #334155;
+    }
+    input[type="range"] { width: 100%; }
+    select, button {
+      width: 100%;
+      height: 38px;
+      border-radius: 10px;
+      border: 1px solid #d6def0;
+      background: white;
+      color: var(--ink);
+      padding: 0 10px;
+      font-size: .95rem;
+    }
+    button.primary {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    button.secondary { cursor: pointer; }
+
+    .plots {
+      display: grid;
+      gap: 12px;
+      grid-template-columns: 1fr;
+    }
+    @media (min-width: 900px) {
+      .plots { grid-template-columns: 1fr 1fr; }
+    }
+    .plot-title {
+      font-size: .92rem;
+      margin: 0 0 8px;
+      color: #334155;
+      font-weight: 600;
+    }
+    canvas {
+      width: 100%;
+      height: 280px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: #fbfdff;
+      display: block;
+    }
+
+    .info {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 10px;
+      font-size: .92rem;
+    }
+    .pill {
+      border: 1px solid #dce6fb;
+      border-radius: 10px;
+      padding: 10px;
+      background: #f8fbff;
+    }
+    .pill b { color: #1d4ed8; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <h1>🎛️ Sound Wave Oscilloscope Simulation</h1>
+      <div class="subtitle">教學重點：Pitch = Frequency（頻率）；Loudness = Amplitude（振幅）</div>
+    </div>
+
+    <div class="card controls">
+      <div class="control">
+        <label for="freq">Frequency (Pitch) <span id="freqVal">440 Hz</span></label>
+        <input id="freq" type="range" min="80" max="2000" step="1" value="440" />
+      </div>
+
+      <div class="control">
+        <label for="amp">Amplitude (Loudness) <span id="ampVal">0.40</span></label>
+        <input id="amp" type="range" min="0" max="1" step="0.01" value="0.40" />
+      </div>
+
+      <div class="control">
+        <label for="wave">Wave Type</label>
+        <select id="wave">
+          <option value="sine">Sine</option>
+          <option value="square">Square</option>
+          <option value="triangle">Triangle</option>
+          <option value="sawtooth">Sawtooth</option>
+        </select>
+      </div>
+
+      <div class="control">
+        <label for="preset">Pitch Preset</label>
+        <select id="preset">
+          <option value="">-- choose --</option>
+          <option value="261.63">C4 (261.63 Hz)</option>
+          <option value="329.63">E4 (329.63 Hz)</option>
+          <option value="440">A4 (440 Hz)</option>
+          <option value="523.25">C5 (523.25 Hz)</option>
+          <option value="880">A5 (880 Hz)</option>
+        </select>
+      </div>
+
+      <div class="control">
+        <label>&nbsp;</label>
+        <button id="toggleAudio" class="primary">▶️ Start Sound</button>
+      </div>
+
+      <div class="control">
+        <label>&nbsp;</label>
+        <button id="freeze" class="secondary">⏸️ Freeze Display</button>
+      </div>
+    </div>
+
+    <div class="plots">
+      <div class="card">
+        <p class="plot-title">Waveform (Time Domain / Oscilloscope)</p>
+        <canvas id="timeCanvas" width="1000" height="560"></canvas>
+      </div>
+      <div class="card">
+        <p class="plot-title">Spectrum (Frequency Domain / FFT)</p>
+        <canvas id="freqCanvas" width="1000" height="560"></canvas>
+      </div>
+    </div>
+
+    <div class="info">
+      <div class="pill">🔊 <b>Loudness</b> 感覺大細聲，主要由 <b>Amplitude</b> 影響。</div>
+      <div class="pill">🎵 <b>Pitch</b> 高低音，主要由 <b>Frequency</b> (Hz) 影響。</div>
+      <div class="pill">📈 時域睇到「波形高低與密度」；頻域睇到「主頻位置」。</div>
+    </div>
+  </div>
+
+  <script>
+    const freqSlider = document.getElementById('freq');
+    const ampSlider = document.getElementById('amp');
+    const waveSelect = document.getElementById('wave');
+    const presetSelect = document.getElementById('preset');
+    const toggleBtn = document.getElementById('toggleAudio');
+    const freezeBtn = document.getElementById('freeze');
+    const freqVal = document.getElementById('freqVal');
+    const ampVal = document.getElementById('ampVal');
+
+    const timeCanvas = document.getElementById('timeCanvas');
+    const freqCanvas = document.getElementById('freqCanvas');
+    const tctx = timeCanvas.getContext('2d');
+    const fctx = freqCanvas.getContext('2d');
+
+    let audioCtx, oscillator, gainNode, analyser;
+    let timeData, freqData;
+    let audioStarted = false;
+    let frozen = false;
+
+    function updateLabels() {
+      freqVal.textContent = `${Math.round(freqSlider.value)} Hz`;
+      ampVal.textContent = Number(ampSlider.value).toFixed(2);
+    }
+
+    function initAudio() {
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      oscillator = audioCtx.createOscillator();
+      gainNode = audioCtx.createGain();
+      analyser = audioCtx.createAnalyser();
+
+      analyser.fftSize = 2048;
+      analyser.smoothingTimeConstant = 0.85;
+
+      timeData = new Uint8Array(analyser.fftSize);
+      freqData = new Uint8Array(analyser.frequencyBinCount);
+
+      oscillator.connect(gainNode);
+      gainNode.connect(analyser);
+      analyser.connect(audioCtx.destination);
+
+      oscillator.frequency.value = Number(freqSlider.value);
+      oscillator.type = waveSelect.value;
+      gainNode.gain.value = Number(ampSlider.value);
+
+      oscillator.start();
+      audioStarted = true;
+      toggleBtn.textContent = '⏹️ Stop Sound';
+    }
+
+    function stopAudio() {
+      if (!audioStarted) return;
+      oscillator.stop();
+      oscillator.disconnect();
+      gainNode.disconnect();
+      analyser.disconnect();
+      audioCtx.close();
+      audioStarted = false;
+      toggleBtn.textContent = '▶️ Start Sound';
+    }
+
+    function drawGrid(ctx, w, h) {
+      ctx.clearRect(0, 0, w, h);
+      ctx.fillStyle = '#fbfdff';
+      ctx.fillRect(0, 0, w, h);
+      ctx.strokeStyle = '#e6edf8';
+      ctx.lineWidth = 1;
+      for (let x = 0; x < w; x += w / 10) {
+        ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke();
+      }
+      for (let y = 0; y < h; y += h / 8) {
+        ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
+      }
+      ctx.strokeStyle = '#c7d4ee';
+      ctx.beginPath();
+      ctx.moveTo(0, h / 2);
+      ctx.lineTo(w, h / 2);
+      ctx.stroke();
+    }
+
+    function drawTimeDomain() {
+      const w = timeCanvas.width;
+      const h = timeCanvas.height;
+      drawGrid(tctx, w, h);
+
+      if (!audioStarted) {
+        tctx.fillStyle = '#64748b';
+        tctx.font = '24px sans-serif';
+        tctx.fillText('Click “Start Sound” to begin', 26, 42);
+        return;
+      }
+
+      analyser.getByteTimeDomainData(timeData);
+      tctx.lineWidth = 3;
+      tctx.strokeStyle = '#2563eb';
+      tctx.beginPath();
+
+      const slice = w / timeData.length;
+      let x = 0;
+      for (let i = 0; i < timeData.length; i++) {
+        const v = timeData[i] / 128.0;
+        const y = (v * h) / 2;
+        if (i === 0) tctx.moveTo(x, y);
+        else tctx.lineTo(x, y);
+        x += slice;
+      }
+      tctx.stroke();
+    }
+
+    function drawFrequencyDomain() {
+      const w = freqCanvas.width;
+      const h = freqCanvas.height;
+      drawGrid(fctx, w, h);
+
+      if (!audioStarted) {
+        fctx.fillStyle = '#64748b';
+        fctx.font = '24px sans-serif';
+        fctx.fillText('FFT spectrum appears here', 26, 42);
+        return;
+      }
+
+      analyser.getByteFrequencyData(freqData);
+      const barW = (w / freqData.length) * 2.2;
+      let x = 0;
+
+      for (let i = 0; i < freqData.length; i++) {
+        const v = freqData[i] / 255;
+        const barH = v * h;
+        fctx.fillStyle = `rgba(37, 99, 235, ${0.25 + v * 0.75})`;
+        fctx.fillRect(x, h - barH, barW, barH);
+        x += barW + 0.5;
+        if (x > w) break;
+      }
+
+      // mark target frequency
+      const nyquist = (audioCtx.sampleRate / 2);
+      const targetFreq = Number(freqSlider.value);
+      const targetX = (targetFreq / nyquist) * w;
+      fctx.strokeStyle = '#ef4444';
+      fctx.lineWidth = 2;
+      fctx.beginPath();
+      fctx.moveTo(targetX, 0);
+      fctx.lineTo(targetX, h);
+      fctx.stroke();
+      fctx.fillStyle = '#ef4444';
+      fctx.font = '22px sans-serif';
+      fctx.fillText(`${Math.round(targetFreq)} Hz`, Math.min(targetX + 8, w - 110), 28);
+    }
+
+    function animate() {
+      if (!frozen) {
+        drawTimeDomain();
+        drawFrequencyDomain();
+      }
+      requestAnimationFrame(animate);
+    }
+
+    freqSlider.addEventListener('input', () => {
+      updateLabels();
+      if (audioStarted) oscillator.frequency.setValueAtTime(Number(freqSlider.value), audioCtx.currentTime);
+    });
+
+    ampSlider.addEventListener('input', () => {
+      updateLabels();
+      if (audioStarted) gainNode.gain.setValueAtTime(Number(ampSlider.value), audioCtx.currentTime);
+    });
+
+    waveSelect.addEventListener('change', () => {
+      if (audioStarted) oscillator.type = waveSelect.value;
+    });
+
+    presetSelect.addEventListener('change', () => {
+      if (!presetSelect.value) return;
+      freqSlider.value = Number(presetSelect.value);
+      updateLabels();
+      if (audioStarted) oscillator.frequency.setValueAtTime(Number(freqSlider.value), audioCtx.currentTime);
+    });
+
+    toggleBtn.addEventListener('click', async () => {
+      if (!audioStarted) initAudio();
+      else stopAudio();
+    });
+
+    freezeBtn.addEventListener('click', () => {
+      frozen = !frozen;
+      freezeBtn.textContent = frozen ? '▶️ Resume Display' : '⏸️ Freeze Display';
+    });
+
+    updateLabels();
+    animate();
+  </script>
+</body>
+</html>
