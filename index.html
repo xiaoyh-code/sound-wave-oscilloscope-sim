@@ -166,6 +166,14 @@
       </div>
 
       <div class="control">
+        <label for="inputMode">Input Mode</label>
+        <select id="inputMode">
+          <option value="osc">Oscillator</option>
+          <option value="mic">Microphone</option>
+        </select>
+      </div>
+
+      <div class="control">
         <label for="preset">Pitch Preset</label>
         <select id="preset">
           <option value="">-- choose --</option>
@@ -211,6 +219,7 @@
     const ampSlider = document.getElementById('amp');
     const waveSelect = document.getElementById('wave');
     const presetSelect = document.getElementById('preset');
+    const inputModeSelect = document.getElementById('inputMode');
     const pitchInputMode = document.getElementById('pitchInputMode');
     const manualPitchWrap = document.getElementById('manualPitchWrap');
     const manualPitchInput = document.getElementById('manualPitch');
@@ -224,7 +233,7 @@
     const tctx = timeCanvas.getContext('2d');
     const fctx = freqCanvas.getContext('2d');
 
-    let audioCtx, oscillator, gainNode, analyser;
+    let audioCtx, oscillator, gainNode, analyser, micSource, micStream;
     let timeData, freqData;
     let audioStarted = false;
     let frozen = false;
@@ -233,7 +242,7 @@
       const v = Math.max(80, Math.min(2000, Number(value) || 440));
       freqSlider.value = v;
       manualPitchInput.value = Math.round(v);
-      if (audioStarted) oscillator.frequency.setValueAtTime(v, audioCtx.currentTime);
+      if (audioStarted && oscillator) oscillator.frequency.setValueAtTime(v, audioCtx.currentTime);
       updateLabels();
     }
 
@@ -242,10 +251,8 @@
       ampVal.textContent = Number(ampSlider.value).toFixed(2);
     }
 
-    function initAudio() {
+    async function initAudio() {
       audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      oscillator = audioCtx.createOscillator();
-      gainNode = audioCtx.createGain();
       analyser = audioCtx.createAnalyser();
 
       analyser.fftSize = 2048;
@@ -254,26 +261,58 @@
       timeData = new Uint8Array(analyser.fftSize);
       freqData = new Uint8Array(analyser.frequencyBinCount);
 
-      oscillator.connect(gainNode);
-      gainNode.connect(analyser);
-      analyser.connect(audioCtx.destination);
+      const mode = inputModeSelect.value;
+      if (mode === 'mic') {
+        micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        micSource = audioCtx.createMediaStreamSource(micStream);
+        micSource.connect(analyser);
+        toggleBtn.textContent = '⏹️ Stop Mic';
+      } else {
+        oscillator = audioCtx.createOscillator();
+        gainNode = audioCtx.createGain();
+        oscillator.connect(gainNode);
+        gainNode.connect(analyser);
+        analyser.connect(audioCtx.destination);
 
-      oscillator.frequency.value = Number(freqSlider.value);
-      oscillator.type = waveSelect.value;
-      gainNode.gain.value = Number(ampSlider.value);
+        oscillator.frequency.value = Number(freqSlider.value);
+        oscillator.type = waveSelect.value;
+        gainNode.gain.value = Number(ampSlider.value);
 
-      oscillator.start();
+        oscillator.start();
+        toggleBtn.textContent = '⏹️ Stop Sound';
+      }
+
       audioStarted = true;
-      toggleBtn.textContent = '⏹️ Stop Sound';
     }
 
     function stopAudio() {
       if (!audioStarted) return;
-      oscillator.stop();
-      oscillator.disconnect();
-      gainNode.disconnect();
-      analyser.disconnect();
-      audioCtx.close();
+
+      if (oscillator) {
+        try { oscillator.stop(); } catch {}
+        try { oscillator.disconnect(); } catch {}
+        oscillator = null;
+      }
+      if (gainNode) {
+        try { gainNode.disconnect(); } catch {}
+        gainNode = null;
+      }
+      if (micSource) {
+        try { micSource.disconnect(); } catch {}
+        micSource = null;
+      }
+      if (micStream) {
+        micStream.getTracks().forEach(t => t.stop());
+        micStream = null;
+      }
+      if (analyser) {
+        try { analyser.disconnect(); } catch {}
+        analyser = null;
+      }
+      if (audioCtx) {
+        audioCtx.close();
+        audioCtx = null;
+      }
       audioStarted = false;
       toggleBtn.textContent = '▶️ Start Sound';
     }
@@ -378,13 +417,26 @@
       setFrequency(freqSlider.value);
     });
 
+    inputModeSelect.addEventListener('change', () => {
+      const isMic = inputModeSelect.value === 'mic';
+      waveSelect.disabled = isMic;
+      ampSlider.disabled = isMic;
+      presetSelect.disabled = isMic;
+      pitchInputMode.disabled = isMic;
+      manualPitchInput.disabled = isMic;
+      if (isMic) manualPitchWrap.style.display = 'none';
+      if (audioStarted) {
+        stopAudio();
+      }
+    });
+
     ampSlider.addEventListener('input', () => {
       updateLabels();
-      if (audioStarted) gainNode.gain.setValueAtTime(Number(ampSlider.value), audioCtx.currentTime);
+      if (audioStarted && gainNode) gainNode.gain.setValueAtTime(Number(ampSlider.value), audioCtx.currentTime);
     });
 
     waveSelect.addEventListener('change', () => {
-      if (audioStarted) oscillator.type = waveSelect.value;
+      if (audioStarted && oscillator) oscillator.type = waveSelect.value;
     });
 
     presetSelect.addEventListener('change', () => {
@@ -406,8 +458,15 @@
     });
 
     toggleBtn.addEventListener('click', async () => {
-      if (!audioStarted) initAudio();
-      else stopAudio();
+      if (!audioStarted) {
+        try {
+          await initAudio();
+        } catch (err) {
+          alert('無法啟用麥克風，請檢查瀏覽器權限。');
+          console.error(err);
+          stopAudio();
+        }
+      } else stopAudio();
     });
 
     freezeBtn.addEventListener('click', () => {
@@ -416,6 +475,7 @@
     });
 
     updateLabels();
+    inputModeSelect.dispatchEvent(new Event('change'));
     animate();
   </script>
 </body>
