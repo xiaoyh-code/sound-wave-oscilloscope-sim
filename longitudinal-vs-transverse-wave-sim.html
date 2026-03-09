@@ -1,0 +1,1181 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <title>縱波與橫波模擬 | Longitudinal vs Transverse Wave Simulation</title>
+ <style>
+ * {
+ margin: 0;
+ padding: 0;
+ box-sizing: border-box;
+ }
+
+ body {
+ font-family: 'Segoe UI', 'Microsoft JhengHei', '微軟正黑體', sans-serif;
+ background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+ min-height: 100vh;
+ color: #fff;
+ padding: 15px;
+ }
+
+ h1 {
+ text-align: center;
+ margin-bottom: 10px;
+ color: #00d4ff;
+ text-shadow: 0 0 20px rgba(0, 212, 255, 0.5);
+ font-size: 24px;
+ }
+
+ .subtitle {
+ text-align: center;
+ color: #888;
+ font-size: 14px;
+ margin-bottom: 20px;
+ }
+
+ .container {
+ max-width: 1400px;
+ margin: 0 auto;
+ }
+
+ .wave-section {
+ display: grid;
+ grid-template-columns: 1fr 1fr;
+ gap: 15px;
+ margin-bottom: 15px;
+ }
+
+ @media (max-width: 900px) {
+ .wave-section {
+ grid-template-columns: 1fr;
+ }
+ }
+
+ .wave-panel {
+ background: rgba(255, 255, 255, 0.05);
+ border-radius: 12px;
+ padding: 15px;
+ border: 1px solid rgba(255, 255, 255, 0.1);
+ }
+
+ .wave-title {
+ font-size: 16px;
+ color: #00d4ff;
+ margin-bottom: 10px;
+ text-align: center;
+ padding: 8px;
+ background: rgba(0, 212, 255, 0.1);
+ border-radius: 8px;
+ border: 1px solid rgba(0, 212, 255, 0.3);
+ }
+
+ .wave-title.longitudinal {
+ color: #ff6b6b;
+ background: rgba(255, 107, 107, 0.1);
+ border-color: rgba(255, 107, 107, 0.3);
+ }
+
+ .wave-title.transverse {
+ color: #00ff88;
+ background: rgba(0, 255, 136, 0.1);
+ border-color: rgba(0, 255, 136, 0.3);
+ }
+
+ .canvas-container {
+ position: relative;
+ margin-bottom: 10px;
+ }
+
+ canvas {
+ width: 100%;
+ border-radius: 8px;
+ background: #0a0a0a;
+ display: block;
+ }
+
+ .graph-label {
+ font-size: 11px;
+ color: #666;
+ text-align: center;
+ margin-top: 5px;
+ }
+
+ .controls {
+ background: rgba(255, 255, 255, 0.05);
+ border-radius: 12px;
+ padding: 15px;
+ margin-bottom: 15px;
+ border: 1px solid rgba(255, 255, 255, 0.1);
+ }
+
+ .control-row {
+ display: flex;
+ flex-wrap: wrap;
+ gap: 15px;
+ align-items: center;
+ justify-content: center;
+ margin-bottom: 10px;
+ }
+
+ .control-group {
+ display: flex;
+ flex-direction: column;
+ gap: 3px;
+ min-width: 120px;
+ }
+
+ .control-group label {
+ font-size: 11px;
+ color: #888;
+ text-transform: uppercase;
+ letter-spacing: 1px;
+ }
+
+ .control-group input[type="range"] {
+ width: 100%;
+ cursor: pointer;
+ }
+
+ .control-group span {
+ font-size: 12px;
+ color: #00d4ff;
+ font-weight: bold;
+ }
+
+ .btn-group {
+ display: flex;
+ gap: 8px;
+ flex-wrap: wrap;
+ justify-content: center;
+ }
+
+ button {
+ padding: 8px 16px;
+ border: none;
+ border-radius: 6px;
+ cursor: pointer;
+ font-size: 13px;
+ font-weight: bold;
+ transition: all 0.3s ease;
+ font-family: 'Microsoft JhengHei', '微軟正黑體', sans-serif;
+ }
+
+ .btn-primary {
+ background: linear-gradient(135deg, #00d4ff, #0099cc);
+ color: #fff;
+ }
+
+ .btn-primary:hover {
+ transform: translateY(-2px);
+ box-shadow: 0 5px 20px rgba(0, 212, 255, 0.4);
+ }
+
+ .btn-secondary {
+ background: rgba(255, 255, 255, 0.1);
+ color: #fff;
+ border: 1px solid rgba(255, 255, 255, 0.2);
+ }
+
+ .btn-secondary:hover {
+ background: rgba(255, 255, 255, 0.2);
+ }
+
+ .legend {
+ display: flex;
+ gap: 15px;
+ flex-wrap: wrap;
+ justify-content: center;
+ margin-top: 8px;
+ font-size: 11px;
+ }
+
+ .legend-item {
+ display: flex;
+ align-items: center;
+ gap: 5px;
+ }
+
+ .legend-color {
+ width: 12px;
+ height: 12px;
+ border-radius: 2px;
+ }
+
+ .info-panel {
+ background: rgba(255, 255, 255, 0.05);
+ border-radius: 12px;
+ padding: 15px;
+ border: 1px solid rgba(255, 255, 255, 0.1);
+ }
+
+ .info-grid {
+ display: grid;
+ grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+ gap: 10px;
+ }
+
+ .info-item {
+ background: rgba(0, 0, 0, 0.3);
+ padding: 10px;
+ border-radius: 8px;
+ border-left: 3px solid #00d4ff;
+ }
+
+ .info-item h4 {
+ font-size: 10px;
+ color: #888;
+ margin-bottom: 3px;
+ text-transform: uppercase;
+ }
+
+ .info-item p {
+ font-size: 14px;
+ color: #00d4ff;
+ font-weight: bold;
+ }
+
+ .marker-info {
+ background: rgba(255, 215, 0, 0.1);
+ border: 1px solid rgba(255, 215, 0, 0.3);
+ border-radius: 6px;
+ padding: 8px 12px;
+ margin-top: 8px;
+ font-size: 12px;
+ text-align: center;
+ }
+
+ .wave-arrow {
+ position: absolute;
+ bottom: 10px;
+ right: 10px;
+ font-size: 20px;
+ opacity: 0.7;
+ }
+
+ .comparison-note {
+ background: rgba(255, 255, 255, 0.05);
+ border-radius: 8px;
+ padding: 12px;
+ margin-top: 10px;
+ font-size: 12px;
+ line-height: 1.6;
+ }
+
+ .comparison-note strong {
+ color: #ffd700;
+ }
+
+ .formula {
+ font-family: 'Courier New', monospace;
+ background: rgba(0, 0, 0, 0.3);
+ padding: 2px 6px;
+ border-radius: 4px;
+ color: #00ff88;
+ }
+ </style>
+</head>
+<body>
+ <div class="container">
+ <h1>🔊 波動模擬比較</h1>
+ <p class="subtitle">縱波與橫波對比模擬 | Longitudinal vs Transverse Wave</p>
+
+ <div class="controls">
+ <div class="control-row">
+ <div class="control-group">
+ <label>振幅 (A)</label>
+ <input type="range" id="amplitude" min="5" max="40" value="20" step="1">
+ <span id="amplitudeValue">20 px</span>
+ </div>
+ <div class="control-group">
+ <label>頻率 (f)</label>
+ <input type="range" id="frequency" min="0.2" max="2" value="0.8" step="0.1">
+ <span id="frequencyValue">0.8 Hz</span>
+ </div>
+ <div class="control-group">
+ <label>波長 (λ)</label>
+ <input type="range" id="wavelength" min="60" max="250" value="120" step="10">
+ <span id="wavelengthValue">120 px</span>
+ </div>
+ <div class="control-group">
+ <label>波速</label>
+ <span id="waveSpeed">96 px/s</span>
+ </div>
+ </div>
+ <div class="control-row">
+ <div class="btn-group">
+ <button class="btn-primary" id="playPause">⏸ 暫停</button>
+ <button class="btn-secondary" id="reset">↺ 重置</button>
+ <button class="btn-secondary" id="slowMo">🐌 慢動作</button>
+ </div>
+ </div>
+ </div>
+
+ <!-- Particle Animation View -->
+ <div class="wave-section">
+ <div class="wave-panel">
+ <div class="wave-title longitudinal">
+ 🔴 縱波 (Longitudinal Wave) - 質點視圖
+ </div>
+ <div class="canvas-container">
+ <canvas id="longParticleCanvas" height="180"></canvas>
+ <span class="wave-arrow">→</span>
+ </div>
+ <div class="legend">
+ <div class="legend-item">
+ <div class="legend-color" style="background: #ff6b6b;"></div>
+ <span>質點</span>
+ </div>
+ <div class="legend-item">
+ <div class="legend-color" style="background: rgba(255,255,255,0.2);"></div>
+ <span>平衡位置</span>
+ </div>
+ <div class="legend-item">
+ <div class="legend-color" style="background: #ffd700;"></div>
+ <span>選中質點</span>
+ </div>
+ </div>
+ <div class="marker-info">
+ 💡 <strong>點擊質點</strong>進行選擇
+ </div>
+ </div>
+
+ <div class="wave-panel">
+ <div class="wave-title transverse">
+ 🟢 橫波 (Transverse Wave) - 質點視圖
+ </div>
+ <div class="canvas-container">
+ <canvas id="transParticleCanvas" height="180"></canvas>
+ <span class="wave-arrow">→</span>
+ </div>
+ <div class="legend">
+ <div class="legend-item">
+ <div class="legend-color" style="background: #00ff88;"></div>
+ <span>質點</span>
+ </div>
+ <div class="legend-item">
+ <div class="legend-color" style="background: rgba(255,255,255,0.2);"></div>
+ <span>平衡位置</span>
+ </div>
+ <div class="legend-item">
+ <div class="legend-color" style="background: #ffd700;"></div>
+ <span>選中質點</span>
+ </div>
+ </div>
+ <div class="marker-info">
+ 💡 <strong>點擊質點</strong>進行選擇
+ </div>
+ </div>
+ </div>
+
+ <!-- Displacement vs Position Graphs -->
+ <div class="wave-section">
+ <div class="wave-panel">
+ <div class="wave-title longitudinal">
+ 📊 縱波位移-位置圖 | Displacement vs Position
+ </div>
+ <canvas id="longPositionGraph" height="200"></canvas>
+ <p class="graph-label">x 軸：沿波傳播方向的水平位移</p>
+ </div>
+
+ <div class="wave-panel">
+ <div class="wave-title transverse">
+ 📊 橫波位移-位置圖 | Displacement vs Position
+ </div>
+ <canvas id="transPositionGraph" height="200"></canvas>
+ <p class="graph-label">y 軸：垂直於波傳播方向的位移</p>
+ </div>
+ </div>
+
+ <!-- Displacement vs Time Graphs -->
+ <div class="wave-section">
+ <div class="wave-panel">
+ <div class="wave-title longitudinal">
+ ⏱️ 縱波位移-時間圖 | Displacement vs Time
+ </div>
+ <canvas id="longTimeGraph" height="200"></canvas>
+ <p class="graph-label">選中質點隨時間的振動情況</p>
+ </div>
+
+ <div class="wave-panel">
+ <div class="wave-title transverse">
+ ⏱️ 橫波位移-時間圖 | Displacement vs Time
+ </div>
+ <canvas id="transTimeGraph" height="200"></canvas>
+ <p class="graph-label">選中質點隨時間的振動情況</p>
+ </div>
+ </div>
+
+ <div class="comparison-note">
+ <strong>主要區別：</strong><br>
+ • <strong>縱波：</strong>質點振動方向<strong>平行</strong>於波的傳播方向，形成密部（壓縮區）與疏部（稀疏區）。
+ 公式：<span class="formula">Δx = A·sin(kx - ωt)</span><br>
+ • <strong>橫波：</strong>質點振動方向<strong>垂直</strong>於波傳播方向，形成波峰與波谷。
+ 公式：<span class="formula">y = A·sin(kx - ωt)</span>
+ </div>
+
+ <div class="info-panel" style="margin-top: 15px;">
+ <div class="info-grid">
+ <div class="info-item">
+ <h4>波動方程</h4>
+ <p>y = A·sin(kx - ωt)</p>
+ </div>
+ <div class="info-item">
+ <h4>波數 (k)</h4>
+ <p id="waveNumber">0.052 rad/px</p>
+ </div>
+ <div class="info-item">
+ <h4>角頻率 (ω)</h4>
+ <p id="angularFreq">5.03 rad/s</p>
+ </div>
+ <div class="info-item">
+ <h4>週期 (T)</h4>
+ <p id="period">1.25 s</p>
+ </div>
+ </div>
+ </div>
+ </div>
+
+ <script>
+ // ============================================
+ // CANVAS SETUP
+ // ============================================
+ const longParticleCanvas = document.getElementById('longParticleCanvas');
+ const transParticleCanvas = document.getElementById('transParticleCanvas');
+ const longPositionGraph = document.getElementById('longPositionGraph');
+ const transPositionGraph = document.getElementById('transPositionGraph');
+ const longTimeGraph = document.getElementById('longTimeGraph');
+ const transTimeGraph = document.getElementById('transTimeGraph');
+
+ const longParticleCtx = longParticleCanvas.getContext('2d');
+ const transParticleCtx = transParticleCanvas.getContext('2d');
+ const longPositionCtx = longPositionGraph.getContext('2d');
+ const transPositionCtx = transPositionGraph.getContext('2d');
+ const longTimeCtx = longTimeGraph.getContext('2d');
+ const transTimeCtx = transTimeGraph.getContext('2d');
+
+ // Resize canvases
+ function resizeCanvases() {
+ const panels = document.querySelectorAll('.wave-panel');
+ const width = panels[0].clientWidth - 30;
+ 
+ longParticleCanvas.width = width;
+ transParticleCanvas.width = width;
+ longPositionGraph.width = width;
+ transPositionGraph.width = width;
+ longTimeGraph.width = width;
+ transTimeGraph.width = width;
+ }
+ resizeCanvases();
+ window.addEventListener('resize', () => {
+ resizeCanvases();
+ initParticles();
+ });
+
+ // ============================================
+ // WAVE PARAMETERS
+ // ============================================
+ let amplitude = 20;
+ let frequency = 0.8;
+ let wavelength = 120;
+ let time = 0;
+ let isPlaying = true;
+ let slowMotion = false;
+ let longSelectedIndex = 15;
+ let transSelectedIndex = 15;
+
+ // Time history
+ let longTimeHistory = [];
+ let transTimeHistory = [];
+
+ // Particles
+ const numParticles = 50;
+ let longParticles = [];
+ let transParticles = [];
+
+ function initParticles() {
+ const longSpacing = longParticleCanvas.width / (numParticles + 4);
+ const transSpacing = transParticleCanvas.width / (numParticles + 4);
+ 
+ longParticles = [];
+ transParticles = [];
+ 
+ for (let i = 0; i < numParticles; i++) {
+ longParticles.push({
+ equilibriumX: (i + 2) * longSpacing,
+ y: longParticleCanvas.height / 2,
+ radius: 7,
+ index: i
+ });
+ 
+ transParticles.push({
+ equilibriumX: (i + 2) * transSpacing,
+ y: transParticleCanvas.height / 2,
+ radius: 7,
+ index: i
+ });
+ }
+ }
+ initParticles();
+
+ // ============================================
+ // WAVE CALCULATIONS
+ // ============================================
+ function getDisplacement(x, t) {
+ const k = 2 * Math.PI / wavelength;
+ const omega = 2 * Math.PI * frequency;
+ return amplitude * Math.sin(k * x - omega * t);
+ }
+
+ // ============================================
+ // DRAW LONGITUDINAL WAVE
+ // ============================================
+ function drawLongitudinalParticles() {
+ const ctx = longParticleCtx;
+ const w = longParticleCanvas.width;
+ const h = longParticleCanvas.height;
+
+ ctx.clearRect(0, 0, w, h);
+
+ // Draw equilibrium positions
+ ctx.strokeStyle = 'rgba(255, 255, 255, 0.12)';
+ ctx.lineWidth = 1;
+ ctx.setLineDash([4, 4]);
+ ctx.beginPath();
+ for (let p of longParticles) {
+ ctx.moveTo(p.equilibriumX, 15);
+ ctx.lineTo(p.equilibriumX, h - 15);
+ }
+ ctx.stroke();
+ ctx.setLineDash([]);
+
+ // Calculate positions
+ const positions = longParticles.map(p => ({
+ x: p.equilibriumX + getDisplacement(p.equilibriumX, time),
+ y: p.y,
+ eqX: p.equilibriumX
+ }));
+
+ // Draw connecting springs
+ ctx.strokeStyle = 'rgba(255, 107, 107, 0.4)';
+ ctx.lineWidth = 2;
+ ctx.beginPath();
+ for (let i = 0; i < positions.length - 1; i++) {
+ ctx.moveTo(positions[i].x, positions[i].y);
+ ctx.lineTo(positions[i + 1].x, positions[i + 1].y);
+ }
+ ctx.stroke();
+
+ // Draw particles
+ for (let i = 0; i < longParticles.length; i++) {
+ const p = longParticles[i];
+ const displacement = getDisplacement(p.equilibriumX, time);
+ const x = p.equilibriumX + displacement;
+ const isSelected = i === longSelectedIndex;
+
+ // Color intensity based on density
+ const density = 1 + (displacement / amplitude) * 0.4;
+
+ // Glow
+ const gradient = ctx.createRadialGradient(x, p.y, 0, x, p.y, p.radius * 2.5);
+ if (isSelected) {
+ gradient.addColorStop(0, '#ffd700');
+ gradient.addColorStop(0.4, 'rgba(255, 215, 0, 0.5)');
+ gradient.addColorStop(1, 'rgba(255, 215, 0, 0)');
+ } else {
+ gradient.addColorStop(0, `rgba(255, 107, 107, ${density})`);
+ gradient.addColorStop(0.5, `rgba(255, 107, 107, ${density * 0.4})`);
+ gradient.addColorStop(1, 'rgba(255, 107, 107, 0)');
+ }
+
+ ctx.fillStyle = gradient;
+ ctx.beginPath();
+ ctx.arc(x, p.y, p.radius * 2.5, 0, Math.PI * 2);
+ ctx.fill();
+
+ // Core
+ ctx.fillStyle = isSelected ? '#ffd700' : `rgba(255, 107, 107, ${0.7 + density * 0.3})`;
+ ctx.beginPath();
+ ctx.arc(x, p.y, p.radius, 0, Math.PI * 2);
+ ctx.fill();
+
+ // Displacement indicator for selected
+ if (isSelected) {
+ ctx.strokeStyle = '#ffd700';
+ ctx.lineWidth = 2;
+ ctx.beginPath();
+ ctx.moveTo(p.equilibriumX, p.y - 30);
+ ctx.lineTo(x, p.y - 30);
+ ctx.stroke();
+
+ // Arrow
+ const arrowSize = 5;
+ ctx.beginPath();
+ ctx.moveTo(x, p.y - 30);
+ ctx.lineTo(x - arrowSize * Math.sign(displacement), p.y - 33);
+ ctx.lineTo(x - arrowSize * Math.sign(displacement), p.y - 27);
+ ctx.closePath();
+ ctx.fill();
+
+ // Label
+ ctx.fillStyle = '#ffd700';
+ ctx.font = '10px sans-serif';
+ ctx.textAlign = 'center';
+ ctx.fillText(`Δx=${displacement.toFixed(1)}`, (p.equilibriumX + x) / 2, p.y - 38);
+ }
+ }
+ }
+
+ // ============================================
+ // DRAW TRANSVERSE WAVE
+ // ============================================
+ function drawTransverseParticles() {
+ const ctx = transParticleCtx;
+ const w = transParticleCanvas.width;
+ const h = transParticleCanvas.height;
+
+ ctx.clearRect(0, 0, w, h);
+
+ // Draw equilibrium line
+ ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
+ ctx.lineWidth = 2;
+ ctx.setLineDash([5, 5]);
+ ctx.beginPath();
+ ctx.moveTo(0, h / 2);
+ ctx.lineTo(w, h / 2);
+ ctx.stroke();
+ ctx.setLineDash([]);
+
+ // Calculate positions
+ const positions = transParticles.map(p => ({
+ x: p.equilibriumX,
+ y: p.y + getDisplacement(p.equilibriumX, time),
+ eqY: p.y
+ }));
+
+ // Draw wave line
+ ctx.strokeStyle = 'rgba(0, 255, 136, 0.4)';
+ ctx.lineWidth = 3;
+ ctx.beginPath();
+ for (let i = 0; i < positions.length - 1; i++) {
+ ctx.moveTo(positions[i].x, positions[i].y);
+ ctx.lineTo(positions[i + 1].x, positions[i + 1].y);
+ }
+ ctx.stroke();
+
+ // Draw particles
+ for (let i = 0; i < transParticles.length; i++) {
+ const p = transParticles[i];
+ const displacement = getDisplacement(p.equilibriumX, time);
+ const y = p.y + displacement;
+ const isSelected = i === transSelectedIndex;
+
+ // Glow
+ const gradient = ctx.createRadialGradient(p.equilibriumX, y, 0, p.equilibriumX, y, p.radius * 2.5);
+ if (isSelected) {
+ gradient.addColorStop(0, '#ffd700');
+ gradient.addColorStop(0.4, 'rgba(255, 215, 0, 0.5)');
+ gradient.addColorStop(1, 'rgba(255, 215, 0, 0)');
+ } else {
+ gradient.addColorStop(0, 'rgba(0, 255, 136, 0.8)');
+ gradient.addColorStop(0.5, 'rgba(0, 255, 136, 0.3)');
+ gradient.addColorStop(1, 'rgba(0, 255, 136, 0)');
+ }
+
+ ctx.fillStyle = gradient;
+ ctx.beginPath();
+ ctx.arc(p.equilibriumX, y, p.radius * 2.5, 0, Math.PI * 2);
+ ctx.fill();
+
+ // Core
+ ctx.fillStyle = isSelected ? '#ffd700' : 'rgba(0, 255, 136, 0.9)';
+ ctx.beginPath();
+ ctx.arc(p.equilibriumX, y, p.radius, 0, Math.PI * 2);
+ ctx.fill();
+
+ // Vertical line to equilibrium for selected
+ if (isSelected) {
+ ctx.strokeStyle = '#ffd700';
+ ctx.lineWidth = 2;
+ ctx.setLineDash([3, 3]);
+ ctx.beginPath();
+ ctx.moveTo(p.equilibriumX, p.y);
+ ctx.lineTo(p.equilibriumX, y);
+ ctx.stroke();
+ ctx.setLineDash([]);
+
+ // Label
+ ctx.fillStyle = '#ffd700';
+ ctx.font = '10px sans-serif';
+ ctx.textAlign = 'left';
+ ctx.fillText(`y=${displacement.toFixed(1)}`, p.equilibriumX + 12, y);
+ }
+ }
+ }
+
+ // ============================================
+ // DRAW POSITION GRAPHS
+ // ============================================
+ function drawLongitudinalPositionGraph() {
+ const ctx = longPositionCtx;
+ const w = longPositionGraph.width;
+ const h = longPositionGraph.height;
+ const padding = 40;
+
+ ctx.clearRect(0, 0, w, h);
+
+ // Axes
+ ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
+ ctx.lineWidth = 1;
+ ctx.beginPath();
+ ctx.moveTo(padding, padding);
+ ctx.lineTo(padding, h - padding);
+ ctx.lineTo(w - padding, h - padding);
+ ctx.stroke();
+
+ // Center line
+ ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
+ ctx.beginPath();
+ ctx.moveTo(padding, h / 2);
+ ctx.lineTo(w - padding, h / 2);
+ ctx.stroke();
+
+ // Labels
+ ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
+ ctx.font = '10px sans-serif';
+ ctx.textAlign = 'right';
+ ctx.fillText('+A', padding - 5, padding + 5);
+ ctx.fillText('0', padding - 5, h / 2 + 4);
+ ctx.fillText('-A', padding - 5, h - padding + 5);
+
+ ctx.save();
+ ctx.translate(12, h / 2);
+ ctx.rotate(-Math.PI / 2);
+ ctx.textAlign = 'center';
+ ctx.fillText('Displacement (Δx)', 0, 0);
+ ctx.restore();
+
+ ctx.textAlign = 'center';
+ ctx.fillText('Position (x)', w / 2, h - 8);
+
+ // Wave
+ ctx.strokeStyle = '#ff6b6b';
+ ctx.lineWidth = 2.5;
+ ctx.beginPath();
+
+ const xMin = longParticles[0].equilibriumX;
+ const xMax = longParticles[longParticles.length - 1].equilibriumX;
+
+ for (let px = 0; px <= w - 2 * padding; px++) {
+ const x = xMin + (px / (w - 2 * padding)) * (xMax - xMin);
+ const disp = getDisplacement(x, time);
+ const py = h / 2 - (disp / amplitude) * ((h - 2 * padding) / 2 - 10);
+
+ if (px === 0) ctx.moveTo(padding + px, py);
+ else ctx.lineTo(padding + px, py);
+ }
+ ctx.stroke();
+
+ // Particle markers
+ for (let i = 0; i < longParticles.length; i += 2) {
+ const p = longParticles[i];
+ const disp = getDisplacement(p.equilibriumX, time);
+ const px = ((p.equilibriumX - xMin) / (xMax - xMin)) * (w - 2 * padding);
+ const py = h / 2 - (disp / amplitude) * ((h - 2 * padding) / 2 - 10);
+
+ ctx.fillStyle = i === longSelectedIndex ? '#ffd700' : 'rgba(255, 107, 107, 0.6)';
+ ctx.beginPath();
+ ctx.arc(padding + px, py, i === longSelectedIndex ? 5 : 2.5, 0, Math.PI * 2);
+ ctx.fill();
+ }
+ }
+
+ function drawTransversePositionGraph() {
+ const ctx = transPositionCtx;
+ const w = transPositionGraph.width;
+ const h = transPositionGraph.height;
+ const padding = 40;
+
+ ctx.clearRect(0, 0, w, h);
+
+ // Axes
+ ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
+ ctx.lineWidth = 1;
+ ctx.beginPath();
+ ctx.moveTo(padding, padding);
+ ctx.lineTo(padding, h - padding);
+ ctx.lineTo(w - padding, h - padding);
+ ctx.stroke();
+
+ // Center line
+ ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
+ ctx.beginPath();
+ ctx.moveTo(padding, h / 2);
+ ctx.lineTo(w - padding, h / 2);
+ ctx.stroke();
+
+ // Labels
+ ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
+ ctx.font = '10px sans-serif';
+ ctx.textAlign = 'right';
+ ctx.fillText('+A', padding - 5, padding + 5);
+ ctx.fillText('0', padding - 5, h / 2 + 4);
+ ctx.fillText('-A', padding - 5, h - padding + 5);
+
+ ctx.save();
+ ctx.translate(12, h / 2);
+ ctx.rotate(-Math.PI / 2);
+ ctx.textAlign = 'center';
+ ctx.fillText('Displacement (y)', 0, 0);
+ ctx.restore();
+
+ ctx.textAlign = 'center';
+ ctx.fillText('Position (x)', w / 2, h - 8);
+
+ // Wave
+ ctx.strokeStyle = '#00ff88';
+ ctx.lineWidth = 2.5;
+ ctx.beginPath();
+
+ const xMin = transParticles[0].equilibriumX;
+ const xMax = transParticles[transParticles.length - 1].equilibriumX;
+
+ for (let px = 0; px <= w - 2 * padding; px++) {
+ const x = xMin + (px / (w - 2 * padding)) * (xMax - xMin);
+ const disp = getDisplacement(x, time);
+ const py = h / 2 - (disp / amplitude) * ((h - 2 * padding) / 2 - 10);
+
+ if (px === 0) ctx.moveTo(padding + px, py);
+ else ctx.lineTo(padding + px, py);
+ }
+ ctx.stroke();
+
+ // Particle markers
+ for (let i = 0; i < transParticles.length; i += 2) {
+ const p = transParticles[i];
+ const disp = getDisplacement(p.equilibriumX, time);
+ const px = ((p.equilibriumX - xMin) / (xMax - xMin)) * (w - 2 * padding);
+ const py = h / 2 - (disp / amplitude) * ((h - 2 * padding) / 2 - 10);
+
+ ctx.fillStyle = i === transSelectedIndex ? '#ffd700' : 'rgba(0, 255, 136, 0.6)';
+ ctx.beginPath();
+ ctx.arc(padding + px, py, i === transSelectedIndex ? 5 : 2.5, 0, Math.PI * 2);
+ ctx.fill();
+ }
+ }
+
+ // ============================================
+ // DRAW TIME GRAPHS
+ // ============================================
+ function drawLongitudinalTimeGraph() {
+ const ctx = longTimeCtx;
+ const w = longTimeGraph.width;
+ const h = longTimeGraph.height;
+ const padding = 40;
+
+ ctx.clearRect(0, 0, w, h);
+
+ const p = longParticles[longSelectedIndex];
+ const currentDisp = getDisplacement(p.equilibriumX, time);
+
+ // Update history
+ longTimeHistory.push({ t: time, disp: currentDisp });
+ const period = 1 / frequency;
+ const maxWindow = 3 * period;
+ while (longTimeHistory.length > 0 && longTimeHistory[0].t < time - maxWindow) {
+ longTimeHistory.shift();
+ }
+
+ // Axes
+ ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
+ ctx.lineWidth = 1;
+ ctx.beginPath();
+ ctx.moveTo(padding, padding);
+ ctx.lineTo(padding, h - padding);
+ ctx.lineTo(w - padding, h - padding);
+ ctx.stroke();
+
+ // Center line
+ ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
+ ctx.beginPath();
+ ctx.moveTo(padding, h / 2);
+ ctx.lineTo(w - padding, h / 2);
+ ctx.stroke();
+
+ // Labels
+ ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
+ ctx.font = '10px sans-serif';
+ ctx.textAlign = 'right';
+ ctx.fillText('+A', padding - 5, padding + 5);
+ ctx.fillText('0', padding - 5, h / 2 + 4);
+ ctx.fillText('-A', padding - 5, h - padding + 5);
+
+ ctx.save();
+ ctx.translate(12, h / 2);
+ ctx.rotate(-Math.PI / 2);
+ ctx.textAlign = 'center';
+ ctx.fillText('Displacement', 0, 0);
+ ctx.restore();
+
+ ctx.textAlign = 'center';
+ ctx.fillText('Time (t)', w / 2, h - 8);
+
+ // History line
+ if (longTimeHistory.length > 1) {
+ ctx.strokeStyle = '#ff6b6b';
+ ctx.lineWidth = 2.5;
+ ctx.beginPath();
+
+ for (let i = 0; i < longTimeHistory.length; i++) {
+ const point = longTimeHistory[i];
+ const px = (w - 2 * padding) - ((time - point.t) / maxWindow) * (w - 2 * padding);
+ const py = h / 2 - (point.disp / amplitude) * ((h - 2 * padding) / 2 - 10);
+
+ if (i === 0) ctx.moveTo(padding + px, py);
+ else ctx.lineTo(padding + px, py);
+ }
+ ctx.stroke();
+ }
+
+ // Current point
+ const currentPx = w - padding;
+ const currentPy = h / 2 - (currentDisp / amplitude) * ((h - 2 * padding) / 2 - 10);
+
+ ctx.fillStyle = '#ffd700';
+ ctx.beginPath();
+ ctx.arc(currentPx, currentPy, 5, 0, Math.PI * 2);
+ ctx.fill();
+
+ // Value label
+ ctx.fillStyle = '#ffd700';
+ ctx.font = 'bold 11px sans-serif';
+ ctx.textAlign = 'right';
+ ctx.fillText(`Δx=${currentDisp.toFixed(1)}`, currentPx - 10, currentPy - 8);
+ }
+
+ function drawTransverseTimeGraph() {
+ const ctx = transTimeCtx;
+ const w = transTimeGraph.width;
+ const h = transTimeGraph.height;
+ const padding = 40;
+
+ ctx.clearRect(0, 0, w, h);
+
+ const p = transParticles[transSelectedIndex];
+ const currentDisp = getDisplacement(p.equilibriumX, time);
+
+ // Update history
+ transTimeHistory.push({ t: time, disp: currentDisp });
+ const period = 1 / frequency;
+ const maxWindow = 3 * period;
+ while (transTimeHistory.length > 0 && transTimeHistory[0].t < time - maxWindow) {
+ transTimeHistory.shift();
+ }
+
+ // Axes
+ ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
+ ctx.lineWidth = 1;
+ ctx.beginPath();
+ ctx.moveTo(padding, padding);
+ ctx.lineTo(padding, h - padding);
+ ctx.lineTo(w - padding, h - padding);
+ ctx.stroke();
+
+ // Center line
+ ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
+ ctx.beginPath();
+ ctx.moveTo(padding, h / 2);
+ ctx.lineTo(w - padding, h / 2);
+ ctx.stroke();
+
+ // Labels
+ ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
+ ctx.font = '10px sans-serif';
+ ctx.textAlign = 'right';
+ ctx.fillText('+A', padding - 5, padding + 5);
+ ctx.fillText('0', padding - 5, h / 2 + 4);
+ ctx.fillText('-A', padding - 5, h - padding + 5);
+
+ ctx.save();
+ ctx.translate(12, h / 2);
+ ctx.rotate(-Math.PI / 2);
+ ctx.textAlign = 'center';
+ ctx.fillText('Displacement', 0, 0);
+ ctx.restore();
+
+ ctx.textAlign = 'center';
+ ctx.fillText('Time (t)', w / 2, h - 8);
+
+ // History line
+ if (transTimeHistory.length > 1) {
+ ctx.strokeStyle = '#00ff88';
+ ctx.lineWidth = 2.5;
+ ctx.beginPath();
+
+ for (let i = 0; i < transTimeHistory.length; i++) {
+ const point = transTimeHistory[i];
+ const px = (w - 2 * padding) - ((time - point.t) / maxWindow) * (w - 2 * padding);
+ const py = h / 2 - (point.disp / amplitude) * ((h - 2 * padding) / 2 - 10);
+
+ if (i === 0) ctx.moveTo(padding + px, py);
+ else ctx.lineTo(padding + px, py);
+ }
+ ctx.stroke();
+ }
+
+ // Current point
+ const currentPx = w - padding;
+ const currentPy = h / 2 - (currentDisp / amplitude) * ((h - 2 * padding) / 2 - 10);
+
+ ctx.fillStyle = '#ffd700';
+ ctx.beginPath();
+ ctx.arc(currentPx, currentPy, 5, 0, Math.PI * 2);
+ ctx.fill();
+
+ // Value label
+ ctx.fillStyle = '#ffd700';
+ ctx.font = 'bold 11px sans-serif';
+ ctx.textAlign = 'right';
+ ctx.fillText(`y=${currentDisp.toFixed(1)}`, currentPx - 10, currentPy - 8);
+ }
+
+ // ============================================
+ // ANIMATION LOOP
+ // ============================================
+ function animate() {
+ if (isPlaying) {
+ const dt = slowMotion ? 0.016 * 0.3 : 0.016;
+ time += dt;
+ }
+
+ drawLongitudinalParticles();
+ drawTransverseParticles();
+ drawLongitudinalPositionGraph();
+ drawTransversePositionGraph();
+ drawLongitudinalTimeGraph();
+ drawTransverseTimeGraph();
+
+ requestAnimationFrame(animate);
+ }
+
+ // ============================================
+ // CONTROLS
+ // ============================================
+ document.getElementById('amplitude').addEventListener('input', (e) => {
+ amplitude = parseFloat(e.target.value);
+ document.getElementById('amplitudeValue').textContent = amplitude + ' px';
+ updateInfo();
+ });
+
+ document.getElementById('frequency').addEventListener('input', (e) => {
+ frequency = parseFloat(e.target.value);
+ document.getElementById('frequencyValue').textContent = frequency + ' Hz';
+ updateInfo();
+ });
+
+ document.getElementById('wavelength').addEventListener('input', (e) => {
+ wavelength = parseFloat(e.target.value);
+ document.getElementById('wavelengthValue').textContent = wavelength + ' px';
+ updateInfo();
+ });
+
+ document.getElementById('playPause').addEventListener('click', (e) => {
+ isPlaying = !isPlaying;
+ e.target.textContent = isPlaying ? '⏸ 暫停' : '▶ 播放';
+ });
+
+ document.getElementById('reset').addEventListener('click', () => {
+ time = 0;
+ longTimeHistory = [];
+ transTimeHistory = [];
+ amplitude = 20;
+ frequency = 0.8;
+ wavelength = 120;
+ document.getElementById('amplitude').value = 20;
+ document.getElementById('frequency').value = 0.8;
+ document.getElementById('wavelength').value = 120;
+ document.getElementById('amplitudeValue').textContent = '20 px';
+ document.getElementById('frequencyValue').textContent = '0.8 Hz';
+ document.getElementById('wavelengthValue').textContent = '120 px';
+ updateInfo();
+ });
+
+ document.getElementById('slowMo').addEventListener('click', (e) => {
+ slowMotion = !slowMotion;
+ e.target.style.background = slowMotion ? 
+ 'linear-gradient(135deg, #00d4ff, #0099cc)' : 
+ 'rgba(255, 255, 255, 0.1)';
+ e.target.style.color = '#fff';
+ });
+
+ // Click handlers
+ longParticleCanvas.addEventListener('click', (e) => {
+ const rect = longParticleCanvas.getBoundingClientRect();
+ const clickX = (e.clientX - rect.left) * (longParticleCanvas.width / rect.width);
+ const clickY = (e.clientY - rect.top) * (longParticleCanvas.height / rect.height);
+
+ let closestIdx = -1;
+ let closestDist = Infinity;
+
+ for (let i = 0; i < longParticles.length; i++) {
+ const p = longParticles[i];
+ const disp = getDisplacement(p.equilibriumX, time);
+ const x = p.equilibriumX + disp;
+ const dist = Math.hypot(clickX - x, clickY - p.y);
+
+ if (dist < closestDist) {
+ closestDist = dist;
+ closestIdx = i;
+ }
+ }
+
+ if (closestDist < 30) {
+ longSelectedIndex = closestIdx;
+ longTimeHistory = [];
+ }
+ });
+
+ transParticleCanvas.addEventListener('click', (e) => {
+ const rect = transParticleCanvas.getBoundingClientRect();
+ const clickX = (e.clientX - rect.left) * (transParticleCanvas.width / rect.width);
+ const clickY = (e.clientY - rect.top) * (transParticleCanvas.height / rect.height);
+
+ let closestIdx = -1;
+ let closestDist = Infinity;
+
+ for (let i = 0; i < transParticles.length; i++) {
+ const p = transParticles[i];
+ const disp = getDisplacement(p.equilibriumX, time);
+ const y = p.y + disp;
+ const dist = Math.hypot(clickX - p.equilibriumX, clickY - y);
+
+ if (dist < closestDist) {
+ closestDist = dist;
+ closestIdx = i;
+ }
+ }
+
+ if (closestDist < 30) {
+ transSelectedIndex = closestIdx;
+ transTimeHistory = [];
+ }
+ });
+
+ function updateInfo() {
+ const k = (2 * Math.PI / wavelength).toFixed(3);
+ const omega = (2 * Math.PI * frequency).toFixed(2);
+ const speed = (wavelength * frequency).toFixed(0);
+ const period = (1 / frequency).toFixed(2);
+
+ document.getElementById('waveNumber').textContent = k + ' rad/px';
+ document.getElementById('angularFreq').textContent = omega + ' rad/s';
+ document.getElementById('waveSpeed').textContent = speed + ' px/s';
+ document.getElementById('period').textContent = period + ' s';
+ }
+
+ // Initialize
+ updateInfo();
+ animate();
+ </script>
+</body>
+</html>
