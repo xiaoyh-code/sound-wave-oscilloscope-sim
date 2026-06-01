@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>模擬庫 — CBOT Physics Simulations</title>
+  <style>
+    :root {
+      --bg: #0f172a; --bg2: #1e293b; --text: #e2e8f0;
+      --muted: #94a3b8; --accent: #38bdf8; --accent2: #0ea5e9;
+      --card: rgba(255,255,255,.06); --border: rgba(255,255,255,.12);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Microsoft JhengHei", sans-serif;
+      background: linear-gradient(135deg, var(--bg), var(--bg2));
+      color: var(--text); min-height: 100vh;
+    }
+    nav {
+      background: rgba(15,23,42,.8); backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100;
+    }
+    .nav-inner {
+      max-width: 1100px; margin: 0 auto; padding: 0 20px;
+      display: flex; align-items: center; justify-content: space-between; height: 56px;
+    }
+    .logo {
+      font-size: 1.15rem; font-weight: 700; color: var(--accent); text-decoration: none;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .logo:hover { color: #7dd3fc; }
+    .nav-links { display: flex; gap: 24px; }
+    .nav-links a { color: var(--muted); text-decoration: none; font-size: .9rem; transition: color .2s; }
+    .nav-links a:hover { color: var(--text); }
+    .nav-links a.active { color: var(--accent); font-weight: 600; }
+
+    .wrap { max-width: 1100px; margin: 0 auto; padding: 32px 20px 48px; }
+    h1 { font-size: 1.7rem; color: #7dd3fc; margin-bottom: 8px; }
+    .sub { color: var(--muted); margin-bottom: 28px; }
+
+    .sim-list { display: grid; gap: 16px; }
+    .sim-row {
+      background: var(--card); border: 1px solid var(--border); border-radius: 14px;
+      padding: 20px 24px; display: grid; grid-template-columns: auto 1fr auto;
+      gap: 20px; align-items: center; transition: transform .2s, border-color .2s;
+    }
+    .sim-row:hover { transform: translateY(-2px); border-color: rgba(56,189,248,.3); }
+    .sim-icon { font-size: 2rem; }
+    .sim-info h3 { color: #bae6fd; font-size: 1.1rem; margin-bottom: 6px; }
+    .sim-info p { color: var(--muted); font-size: .92rem; line-height: 1.5; }
+    .sim-tags { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
+    .tag {
+      font-size: .75rem; background: rgba(56,189,248,.12); color: var(--accent);
+      padding: 3px 10px; border-radius: 6px;
+    }
+    a.btn {
+      display: inline-block; padding: 10px 18px; border-radius: 10px;
+      background: var(--accent2); color: #fff; text-decoration: none; font-weight: 600;
+      font-size: .9rem; transition: background .2s; white-space: nowrap;
+    }
+    a.btn:hover { background: #0284c7; }
+
+    .coming {
+      opacity: .5; pointer-events: none;
+    }
+    .coming .btn { background: #475569; }
+    .coming-badge {
+      font-size: .72rem; background: rgba(251,191,36,.15); color: #fbbf24;
+      padding: 2px 8px; border-radius: 4px; margin-left: 8px;
+    }
+
+    @media (max-width: 700px) {
+      .sim-row { grid-template-columns: 1fr; text-align: center; }
+      .sim-tags { justify-content: center; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <div class="nav-inner">
+      <a href="./index.html" class="logo">⚡ CBOT Physics</a>
+      <div class="nav-links">
+        <a href="./index.html">主頁</a>
+        <a href="./simulations.html" class="active">模擬庫</a>
+        <a href="./about.html">關於</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="wrap">
+    <h1>📂 模擬庫</h1>
+    <p class="sub">全部物理互動模擬一覽，點擊進入使用。</p>
+
+    <div class="sim-list">
+      <div class="sim-row">
+        <div class="sim-icon">🎛️</div>
+        <div class="sim-info">
+          <h3>Sound Wave Oscilloscope</h3>
+          <p>Oscillator / Microphone 切換，waveform + FFT 顯示，支援 Pitch 輸入模式。</p>
+          <div class="sim-tags">
+            <span class="tag">聲波</span>
+            <span class="tag">FFT</span>
+            <span class="tag">音高</span>
+            <span class="tag">波形</span>
+          </div>
+        </div>
+        <a class="btn" href="./pitch-oscilloscope-sim.html">進入模擬</a>
+      </div>
+
+      <div class="sim-row">
+        <div class="sim-icon">🔴🟢</div>
+        <div class="sim-info">
+          <h3>Longitudinal vs Transverse Wave</h3>
+          <p>縱波與橫波對比，粒子視圖、位移-位置圖、位移-時間圖，波動方向差異可視化。</p>
+          <div class="sim-tags">
+            <span class="tag">縱波</span>
+            <span class="tag">橫波</span>
+            <span class="tag">粒子運動</span>
+            <span class="tag">位移圖</span>
+          </div>
+        </div>
+        <a class="btn" href="./longitudinal-vs-transverse-wave-sim.html">進入模擬</a>
+      </div>
+
+      <div class="sim-row coming">
+        <div class="sim-icon">🌊</div>
+        <div class="sim-info">
+          <h3>干涉與繞射模擬 <span class="coming-badge">準備中</span></h3>
+          <p>雙縫干涉、單縫繞射，觀察條紋分佈與波長關係。</p>
+          <div class="sim-tags">
+            <span class="tag">干涉</span>
+            <span class="tag">繞射</span>
+          </div>
+        </div>
+        <a class="btn" href="#">即將推出</a>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>
