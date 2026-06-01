@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>關於 — CBOT Physics Simulations</title>
+  <style>
+    :root {
+      --bg: #0f172a; --bg2: #1e293b; --text: #e2e8f0;
+      --muted: #94a3b8; --accent: #38bdf8; --accent2: #0ea5e9;
+      --card: rgba(255,255,255,.06); --border: rgba(255,255,255,.12);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Microsoft JhengHei", sans-serif;
+      background: linear-gradient(135deg, var(--bg), var(--bg2));
+      color: var(--text); min-height: 100vh;
+    }
+    nav {
+      background: rgba(15,23,42,.8); backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100;
+    }
+    .nav-inner {
+      max-width: 1100px; margin: 0 auto; padding: 0 20px;
+      display: flex; align-items: center; justify-content: space-between; height: 56px;
+    }
+    .logo {
+      font-size: 1.15rem; font-weight: 700; color: var(--accent); text-decoration: none;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .logo:hover { color: #7dd3fc; }
+    .nav-links { display: flex; gap: 24px; }
+    .nav-links a { color: var(--muted); text-decoration: none; font-size: .9rem; transition: color .2s; }
+    .nav-links a:hover { color: var(--text); }
+    .nav-links a.active { color: var(--accent); font-weight: 600; }
+
+    .wrap { max-width: 800px; margin: 0 auto; padding: 40px 20px 60px; }
+    h1 { font-size: 1.7rem; color: #7dd3fc; margin-bottom: 12px; }
+    .sub { color: var(--muted); margin-bottom: 32px; line-height: 1.6; }
+
+    .card {
+      background: var(--card); border: 1px solid var(--border); border-radius: 14px;
+      padding: 24px; margin-bottom: 20px;
+    }
+    .card h2 { color: #bae6fd; font-size: 1.15rem; margin-bottom: 12px; }
+    .card p { color: #cbd5e1; font-size: .95rem; line-height: 1.7; margin-bottom: 10px; }
+    .card ul { margin-left: 20px; color: #cbd5e1; font-size: .95rem; line-height: 1.8; }
+    .card a { color: var(--accent); text-decoration: none; }
+    .card a:hover { text-decoration: underline; }
+    .card code {
+      background: rgba(255,255,255,.08); padding: 2px 6px; border-radius: 4px;
+      font-size: .88rem; color: #bae6fd;
+    }
+
+    .foot {
+      text-align: center; padding: 20px; color: #64748b; font-size: .85rem;
+      border-top: 1px solid var(--border); max-width: 1100px; margin: 0 auto;
+    }
+
+    @media (max-width: 700px) {
+      .nav-links { gap: 16px; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <div class="nav-inner">
+      <a href="./index.html" class="logo">⚡ CBOT Physics</a>
+      <div class="nav-links">
+        <a href="./index.html">主頁</a>
+        <a href="./simulations.html">模擬庫</a>
+        <a href="./about.html" class="active">關於</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="wrap">
+    <h1>ℹ️ 關於本站</h1>
+    <p class="sub">CBOT Physics Simulations 係一個專為中學物理教學設計嘅互動模擬平台，
+    <br>所有模擬都可以喺瀏覽器直接運行，毋須安裝任何軟件。</p>
+
+    <div class="card">
+      <h2>🎯 設計目的</h2>
+      <p>物理概念（尤其係聲波同波動）往往比較抽象，學生難以憑空想像。透過互動模擬，學生可以即時調整參數（頻率、振幅、波長等），觀察波形變化，加深理解。</p>
+    </div>
+
+    <div class="card">
+      <h2>💻 技術架構</h2>
+      <ul>
+        <li>純 HTML + CSS + JavaScript，毋須後端伺服器</li>
+        <li>使用 Web Audio API 同 Canvas 進行即時繪圖</li>
+        <li>響應式設計，支援桌面同平板</li>
+        <li>託管於 <a href="https://pages.github.com" target="_blank">GitHub Pages</a>，免費且穩定</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h2>🚀 使用說明</h2>
+      <ul>
+        <li>進入模擬頁面後，用 slider 或輸入框調整參數</li>
+        <li>部分模擬支援 <strong>Oscillator / Microphone</strong> 切換</li>
+        <li>如果見唔到最新版本，請按 <code>⌘+Shift+R</code> (Mac) 或 <code>Ctrl+F5</code> (Windows) 強制刷新</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h2>📬 聯絡</h2>
+      <p>有建議或想新增模擬？歡迎喺 <a href="https://github.com/xiaoyh-code/sound-wave-oscilloscope-sim" target="_blank">GitHub Repo</a> 開 issue。</p>
+    </div>
+  </div>
+
+  <div class="foot">
+    Made by XIAO Sir · 更新於 2026
+  </div>
+
+</body>
+</html>
