@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Light Wave Simulation — Reflection &amp; Refraction</title>
+<style>
+  :root {
+    --bg:#0f172a; --bg2:#1e293b; --text:#e2e8f0; --muted:#94a3b8;
+    --accent:#38bdf8; --accent2:#0ea5e9; --card:rgba(255,255,255,.06);
+    --border:rgba(255,255,255,.12); --green:#4ade80; --red:#f87171; --blue:#60a5fa;
+  }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body {
+    font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Microsoft JhengHei", sans-serif;
+    background: linear-gradient(135deg, var(--bg), var(--bg2)); color: var(--text); min-height:100vh;
+  }
+  nav {
+    background:rgba(15,23,42,.8); backdrop-filter:blur(10px); border-bottom:1px solid var(--border);
+    position:sticky; top:0; z-index:100;
+  }
+  .nav-inner { max-width:1200px; margin:0 auto; padding:0 20px; display:flex; align-items:center; justify-content:space-between; height:56px; }
+  .logo { font-size:1.15rem; font-weight:700; color:var(--accent); text-decoration:none; display:flex; align-items:center; gap:8px; }
+  .nav-links { display:flex; gap:24px; }
+  .nav-links a { color:var(--muted); text-decoration:none; font-size:.9rem; transition:color .2s; }
+  .nav-links a:hover { color:var(--text); }
+  .wrap { max-width:1200px; margin:0 auto; padding:24px 20px 48px; }
+
+  /* Tabs */
+  .tabs { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:20px; border-bottom:1px solid var(--border); padding-bottom:12px; }
+  .tab-btn {
+    background:var(--card); border:1px solid var(--border); color:var(--muted);
+    padding:10px 18px; border-radius:10px; cursor:pointer; font-size:.9rem; transition:all .2s;
+  }
+  .tab-btn:hover { color:var(--text); border-color:rgba(56,189,248,.3); }
+  .tab-btn.active { background:rgba(56,189,248,.15); color:var(--accent); border-color:rgba(56,189,248,.4); font-weight:600; }
+
+  .tab-panel { display:none; }
+  .tab-panel.active { display:block; animation:fade .3s; }
+  @keyframes fade { from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:none;} }
+
+  .section-title { font-size:1.35rem; color:#7dd3fc; margin-bottom:8px; }
+  .section-sub { color:var(--muted); margin-bottom:20px; line-height:1.5; }
+
+  .card {
+    background:var(--card); border:1px solid var(--border); border-radius:14px; padding:20px; margin-bottom:16px;
+  }
+  .card h3 { color:#bae6fd; font-size:1.1rem; margin-bottom:10px; }
+  .card p, .card li { color:#cbd5e1; font-size:.95rem; line-height:1.6; }
+  .card ul { margin-left:20px; }
+  .card li { margin-bottom:6px; }
+
+  .canvas-wrap { background:rgba(0,0,0,.25); border-radius:12px; border:1px solid var(--border); margin-bottom:16px; overflow:hidden; }
+  canvas { display:block; width:100%; height:auto; }
+
+  .controls { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:14px; margin-bottom:16px; }
+  .control { background:var(--card); border:1px solid var(--border); border-radius:10px; padding:14px; }
+  .control label { display:flex; justify-content:space-between; color:#94a3b8; font-size:.85rem; margin-bottom:6px; }
+  .control input[type="range"] { width:100%; }
+  .control select { width:100%; background:rgba(0,0,0,.3); border:1px solid var(--border); color:var(--text); padding:8px; border-radius:6px; }
+  .value-display { font-weight:700; color:var(--accent); }
+
+  .formula-box {
+    background:rgba(56,189,248,.08); border:1px solid rgba(56,189,248,.25); border-radius:10px;
+    padding:14px 18px; margin:12px 0; font-family:"Courier New", monospace; font-size:1.05rem; color:#bae6fd;
+  }
+
+  .legend { display:flex; gap:20px; flex-wrap:wrap; margin:10px 0; font-size:.85rem; }
+  .legend-item { display:flex; align-items:center; gap:6px; }
+  .dot { width:14px; height:14px; border-radius:50%; }
+
+  .btn {
+    display:inline-block; padding:10px 18px; border-radius:10px; background:var(--accent2); color:#fff;
+    text-decoration:none; font-weight:600; font-size:.9rem; border:none; cursor:pointer; transition:background .2s;
+  }
+  .btn:hover { background:#0284c7; }
+  .btn-secondary { background:transparent; border:1px solid var(--border); color:var(--text); }
+  .btn-secondary:hover { background:rgba(255,255,255,.06); }
+
+  .grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+  @media(max-width:800px){ .grid-2 { grid-template-columns:1fr; } }
+
+  .prism-selector { display:flex; gap:10px; margin-bottom:14px; flex-wrap:wrap; }
+  .prism-btn {
+    background:var(--card); border:1px solid var(--border); color:var(--muted); padding:10px 16px;
+    border-radius:10px; cursor:pointer; font-size:.9rem; transition:all .2s;
+  }
+  .prism-btn:hover { color:var(--text); }
+  .prism-btn.active { background:rgba(56,189,248,.15); color:var(--accent); border-color:rgba(56,189,248,.4); }
+
+  .measure-box {
+    background:rgba(0,0,0,.2); border-radius:8px; padding:12px; font-family:"Courier New", monospace;
+    font-size:.9rem; color:#cbd5e1; line-height:1.8;
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <a href="../index.html" class="logo">⚡ CBOT Physics</a>
+    <div class="nav-links">
+      <a href="../index.html">主頁</a>
+      <a href="../simulations.html">模擬庫</a>
+      <a href="../about.html">關於</a>
+    </div>
+  </div>
+</nav>
+
+<div class="wrap">
+  <h1 class="section-title">💡 Light Wave Simulation</h1>
+  <p class="section-sub">
+    Interactive simulations covering the nature of light, reflection, refraction, and total internal reflection.
+    Adjust sliders to explore ray diagrams and verify optical laws.
+  </p>
+
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="nature">Nature of Light</button>
+    <button class="tab-btn" data-tab="reflection">Reflection</button>
+    <button class="tab-btn" data-tab="refraction">Refraction</button>
+    <button class="tab-btn" data-tab="practical">Practical Blocks</button>
+    <button class="tab-btn" data-tab="tir">Total Internal Reflection</button>
+  </div>
+
+  <!-- ====== NATURE OF LIGHT ====== -->
+  <div class="tab-panel active" id="nature">
+    <div class="card">
+      <h3>Transverse Wave Nature of Light</h3>
+      <p>Light is an electromagnetic wave — the electric field (E) and magnetic field (B) oscillate <strong>perpendicular</strong> to the direction of travel. This makes light a <strong>transverse wave</strong>.</p>
+      <div class="legend">
+        <span class="legend-item"><span class="dot" style="background:#f87171"></span> Electric field (E)</span>
+        <span class="legend-item"><span class="dot" style="background:#4ade80"></span> Magnetic field (B)</span>
+        <span class="legend-item"><span class="dot" style="background:#94a3b8"></span> Direction of travel</span>
+      </div>
+    </div>
+    <div class="canvas-wrap"><canvas id="canvasNature" width="900" height="320"></canvas></div>
+    <div class="controls">
+      <div class="control">
+        <label>Wave speed <span id="valSpeed" class="value-display">medium</span></label>
+        <input type="range" id="speedNature" min="1" max="5" value="2" step="1">
+      </div>
+      <div class="control">
+        <label>Amplitude</label>
+        <input type="range" id="ampNature" min="20" max="80" value="50">
+      </div>
+      <div class="control">
+        <label>Wavelength</label>
+        <input type="range" id="lambdaNature" min="60" max="200" value="120">
+      </div>
+    </div>
+    <div class="card">
+      <h3>Key Points</h3>
+      <ul>
+        <li>Unlike sound (longitudinal), light does NOT need a medium — it travels through vacuum.</li>
+        <li>In a transverse wave, particle displacement is perpendicular to wave direction.</li>
+        <li>The animation shows E-field in red, B-field in green, both oscillating at 90° to each other and to propagation.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ====== REFLECTION ====== -->
+  <div class="tab-panel" id="reflection">
+    <div class="card">
+      <h3>Law of Reflection</h3>
+      <p>When light hits a smooth surface, it reflects. The <strong>angle of incidence (i)</strong> equals the <strong>angle of reflection (r)</strong>, measured from the <strong>normal</strong> (a line perpendicular to the surface).</p>
+      <div class="formula-box">∠i = ∠r &nbsp;&nbsp;(both measured from the normal)</div>
+    </div>
+    <div class="canvas-wrap"><canvas id="canvasReflect" width="900" height="400"></canvas></div>
+    <div class="controls">
+      <div class="control">
+        <label>Angle of incidence <span id="valIncidence" class="value-display">45°</span></label>
+        <input type="range" id="angleReflect" min="5" max="85" value="45">
+      </div>
+      <div class="control">
+        <label>Surface type</label>
+        <select id="surfaceType">
+          <option value="mirror">Plane Mirror</option>
+          <option value="rough">Rough Surface (diffuse)</option>
+        </select>
+      </div>
+    </div>
+    <div class="measure-box" id="reflectData">
+      Angle of incidence (i) = 45°<br>
+      Angle of reflection (r) = 45°<br>
+      Verified: i = r ✓
+    </div>
+    <div class="card">
+      <h3>Ray Diagram Checklist</h3>
+      <ul>
+        <li>Incident ray shown in <span style="color:var(--red)">red</span>, reflected ray in <span style="color:var(--green)">green</span>.</li>
+        <li>Normal line (dashed grey) is perpendicular to surface.</li>
+        <li>Both angles measured from the normal, not from the surface.</li>
+        <li>Rough surface causes diffuse reflection — light scatters in many directions.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ====== REFRACTION ====== -->
+  <div class="tab-panel" id="refraction">
+    <div class="card">
+      <h3>Refraction — Snell's Law</h3>
+      <p>When light passes from one medium to another, it bends. The amount of bending depends on the <strong>refractive index (n)</strong> of each medium.</p>
+      <div class="formula-box">n = sin(i) / sin(r) &nbsp;&nbsp;&nbsp; or &nbsp;&nbsp;&nbsp; n₁ sin θ₁ = n₂ sin θ₂</div>
+      <p>Light bends <strong>towards the normal</strong> when entering a denser medium (higher n), and <strong>away from the normal</strong> when entering a less dense medium.</p>
+    </div>
+    <div class="canvas-wrap"><canvas id="canvasRefract" width="900" height="420"></canvas></div>
+    <div class="controls">
+      <div class="control">
+        <label>Angle of incidence <span id="valI" class="value-display">40°</span></label>
+        <input type="range" id="angleI" min="5" max="85" value="40">
+      </div>
+      <div class="control">
+        <label>From medium (n₁)</label>
+        <select id="n1">
+          <option value="1.00">Air (n = 1.00)</option>
+          <option value="1.33">Water (n = 1.33)</option>
+          <option value="1.50">Glass (n = 1.50)</option>
+        </select>
+      </div>
+      <div class="control">
+        <label>To medium (n₂)</label>
+        <select id="n2">
+          <option value="1.00">Air (n = 1.00)</option>
+          <option value="1.33" selected>Water (n = 1.33)</option>
+          <option value="1.50">Glass (n = 1.50)</option>
+        </select>
+      </div>
+    </div>
+    <div class="measure-box" id="refractData">
+      n₁ = 1.00 (air), n₂ = 1.33 (water)<br>
+      i = 40°, r = 28.9°<br>
+      n = sin(40°) / sin(28.9°) = 1.33 ✓
+    </div>
+    <div class="card">
+      <h3>How to Remember</h3>
+      <ul>
+        <li><strong>Air → Glass/Water</strong>: bends TOWARDS normal (slower in denser medium)</li>
+        <li><strong>Glass/Water → Air</strong>: bends AWAY from normal (faster in less dense medium)</li>
+        <li>Frequency stays the same; wavelength and speed change.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ====== PRACTICAL BLOCKS ====== -->
+  <div class="tab-panel" id="practical">
+    <div class="card">
+      <h3>Investigating Refraction with Blocks</h3>
+      <p>Click and drag to aim a laser ray at different blocks. Observe how the path changes and measure angles to calculate refractive index.</p>
+    </div>
+    <div class="prism-selector">
+      <button class="prism-btn active" data-shape="rect">📦 Rectangular Block</button>
+      <button class="prism-btn" data-shape="semi">🔵 Semi-circular Block</button>
+      <button class="prism-btn" data-shape="tri">🔺 Triangular Prism</button>
+    </div>
+    <div class="canvas-wrap"><canvas id="canvasPractical" width="900" height="460"></canvas></div>
+    <div class="controls">
+      <div class="control">
+        <label>Laser angle <span id="valLaser" class="value-display">30°</span></label>
+        <input type="range" id="angleLaser" min="-80" max="80" value="30">
+      </div>
+      <div class="control">
+        <label>Block material (n)</label>
+        <select id="blockN">
+          <option value="1.50">Glass (n = 1.50)</option>
+          <option value="1.33">Water (n = 1.33)</option>
+          <option value="2.42">Diamond (n = 2.42)</option>
+        </select>
+      </div>
+      <div class="control">
+        <label>Show normals</label>
+        <input type="checkbox" id="showNormals" checked>
+      </div>
+    </div>
+    <div class="measure-box" id="practicalData">
+      Shape: Rectangular block | Material: Glass (n = 1.50)<br>
+      Incident angle: 30° | Refracted: 19.5° | Emergent: 30° (parallel to incident)<br>
+      Lateral displacement: visible — ray emerges shifted sideways.
+    </div>
+    <div class="card">
+      <h3>Practical Tips</h3>
+      <ul>
+        <li><strong>Rectangular block</strong>: emergent ray is parallel to incident ray, but shifted sideways.</li>
+        <li><strong>Semi-circular block</strong>: ray entering through curved face travels along radius → hits flat face at 0° to normal → no bending at entry!</li>
+        <li><strong>Triangular prism</strong>: ray bends twice — can demonstrate dispersion (white light → spectrum).</li>
+        <li>Trace rays on paper, measure i and r with protractor, calculate n = sin(i)/sin(r).</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ====== TOTAL INTERNAL REFLECTION ====== -->
+  <div class="tab-panel" id="tir">
+    <div class="card">
+      <h3>Total Internal Reflection (TIR)</h3>
+      <p>When light travels from a <strong>denser to a less dense</strong> medium, if the angle of incidence exceeds the <strong>critical angle (c)</strong>, all light reflects back — none refracts out.</p>
+      <div class="formula-box">sin(c) = 1 / n &nbsp;&nbsp;&nbsp;(where n is refractive index of denser medium)</div>
+      <p>Critical angle depends only on the material. For glass (n = 1.50), c ≈ 41.8°. For water (n = 1.33), c ≈ 48.8°.</p>
+    </div>
+    <div class="grid-2">
+      <div>
+        <div class="canvas-wrap"><canvas id="canvasTIR" width="440" height="380"></canvas></div>
+        <div class="controls">
+          <div class="control">
+            <label>Incident angle <span id="valTIR" class="value-display">50°</span></label>
+            <input type="range" id="angleTIR" min="0" max="90" value="50">
+          </div>
+          <div class="control">
+            <label>Medium n</label>
+            <select id="tirN">
+              <option value="1.50" selected>Glass (n = 1.50, c≈41.8°)</option>
+              <option value="1.33">Water (n = 1.33, c≈48.8°)</option>
+              <option value="2.42">Diamond (n = 2.42, c≈24.4°)</option>
+            </select>
+          </div>
+        </div>
+        <div class="measure-box" id="tirData">
+          n = 1.50 → critical angle c = 41.8°<br>
+          Incident angle = 50° > c → TIR occurs!<br>
+          No refracted ray — 100% reflection.
+        </div>
+      </div>
+      <div>
+        <div class="card">
+          <h3>Applications of TIR</h3>
+          <ul>
+            <li><strong>Optical fibres</strong>: light bounces along the fibre by repeated TIR. Core has higher n than cladding.</li>
+            <li><strong>Prisms</strong>: right-angled prisms can reflect light through 90° or 180° with almost no energy loss (better than mirrors!).</li>
+            <li><strong>Sparkle of diamonds</strong>: high n (2.42) means small c — light undergoes multiple TIRs before escaping, creating sparkle.</li>
+          </ul>
+        </div>
+        <div class="canvas-wrap"><canvas id="canvasFibre" width="440" height="200"></canvas></div>
+        <p style="color:var(--muted); font-size:.85rem; text-align:center; margin-top:8px;">🔼 Light bouncing inside an optical fibre by TIR</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ===== TABS ===== */
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById(btn.dataset.tab).classList.add('active');
+  });
+});
+
+/* ===== UTILITY ===== */
+const D2R = Math.PI/180, R2D = 180/Math.PI;
+function drawArrow(ctx, x1, y1, x2, y2, color, width=2, head=10) {
+  const dx=x2-x1, dy=y2-y1, ang=Math.atan2(dy,dx);
+  ctx.strokeStyle=color; ctx.lineWidth=width;
+  ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(x2,y2); ctx.lineTo(x2-head*Math.cos(ang-0.4), y2-head*Math.sin(ang-0.4));
+  ctx.lineTo(x2-head*Math.cos(ang+0.4), y2-head*Math.sin(ang+0.4)); ctx.closePath(); ctx.fillStyle=color; ctx.fill();
+}
+function drawDashedLine(ctx, x1,y1,x2,y2,color) {
+  ctx.strokeStyle=color; ctx.lineWidth=1.5; ctx.setLineDash([8,6]);
+  ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke(); ctx.setLineDash([]);
+}
+function drawAngleArc(ctx, cx, cy, radius, startAngle, endAngle, color, label) {
+  ctx.strokeStyle=color; ctx.lineWidth=2; ctx.beginPath(); ctx.arc(cx,cy,radius,startAngle,endAngle); ctx.stroke();
+  if(label) {
+    const mid=(startAngle+endAngle)/2;
+    ctx.fillStyle=color; ctx.font='bold 13px system-ui'; ctx.textAlign='center';
+    ctx.fillText(label, cx+(radius+20)*Math.cos(mid), cy+(radius+20)*Math.sin(mid));
+  }
+}
+
+/* ===== NATURE OF LIGHT ===== */
+const cNature = document.getElementById('canvasNature'), ctxN = cNature.getContext('2d');
+let tNature = 0;
+function drawNature() {
+  const w=cNature.width, h=cNature.height, speed=+speedNature.value, amp=+ampNature.value, lambda=+lambdaNature.value;
+  ctxN.fillStyle='#0b1220'; ctxN.fillRect(0,0,w,h);
+  const cx=w/2, cy=h/2, k=2*Math.PI/lambda;
+  // direction arrow
+  drawArrow(ctxN, 50, cy-80, w-50, cy-80, '#94a3b8', 2, 8);
+  ctxN.fillStyle='#94a3b8'; ctxN.font='13px system-ui'; ctxN.textAlign='center';
+  ctxN.fillText('Direction of travel →', w/2, cy-92);
+  // E field (red, vertical)
+  ctxN.strokeStyle='#f87171'; ctxN.lineWidth=3;
+  ctxN.beginPath();
+  for(let x=0; x<w; x++) { const y=cy + amp*Math.sin(k*x - speed*tNature*0.05); x===0?ctxN.moveTo(x,y):ctxN.lineTo(x,y); }
+  ctxN.stroke();
+  // B field (green, into/out of page represented as horizontal offset dots)
+  ctxN.strokeStyle='#4ade80'; ctxN.lineWidth=3;
+  ctxN.beginPath();
+  for(let x=0; x<w; x++) { const y=cy + 20 + amp*Math.sin(k*x - speed*tNature*0.05 + Math.PI/2); x===0?ctxN.moveTo(x,y):ctxN.lineTo(x,y); }
+  ctxN.stroke();
+  // labels
+  ctxN.fillStyle='#f87171'; ctxN.font='bold 14px system-ui'; ctxN.textAlign='left';
+  ctxN.fillText('Electric field (E) — oscillates vertically', 20, cy-amp-15);
+  ctxN.fillStyle='#4ade80';
+  ctxN.fillText('Magnetic field (B) — oscillates horizontally', 20, cy+20+amp+25);
+  // dots on wave showing perpendicular displacement
+  for(let x=0; x<w; x+=lambda) {
+    const yE=cy + amp*Math.sin(k*x - speed*tNature*0.05);
+    ctxN.fillStyle='#f87171'; ctxN.beginPath(); ctxN.arc(x,yE,4,0,Math.PI*2); ctxN.fill();
+    const yB=cy+20 + amp*Math.sin(k*x - speed*tNature*0.05 + Math.PI/2);
+    ctxN.fillStyle='#4ade80'; ctxN.beginPath(); ctxN.arc(x,yB,4,0,Math.PI*2); ctxN.fill();
+  }
+  tNature++;
+  requestAnimationFrame(drawNature);
+}
+drawNature();
+
+/* ===== REFLECTION ===== */
+const cReflect = document.getElementById('canvasReflect'), ctxR = cReflect.getContext('2d');
+function drawReflect() {
+  const w=cReflect.width, h=cReflect.height, iDeg=+angleReflect.value;
+  ctxR.fillStyle='#0b1220'; ctxR.fillRect(0,0,w,h);
+  const mx=w/2, my=h/2+60;
+  // surface
+  ctxR.strokeStyle='#475569'; ctxR.lineWidth=3;
+  ctxR.beginPath(); ctxR.moveTo(50,my); ctxR.lineTo(w-50,my); ctxR.stroke();
+  ctxR.fillStyle='#334155'; ctxR.font='13px system-ui'; ctxR.textAlign='center';
+  ctxR.fillText('Mirror surface', mx, my+28);
+  // normal
+  drawDashedLine(ctxR, mx, 40, mx, my+120, '#64748b');
+  ctxR.fillStyle='#64748b'; ctxR.fillText('Normal', mx+35, 55);
+  // incident ray
+  const iRad=iDeg*D2R, len=200;
+  const ix1=mx, iy1=my, ix2=mx-len*Math.sin(iRad), iy2=my-len*Math.cos(iRad);
+  drawArrow(ctxR, ix2, iy2, ix1, iy1, '#f87171', 3, 10);
+  // reflected ray
+  const rx2=mx+len*Math.sin(iRad), ry2=my-len*Math.cos(iRad);
+  drawArrow(ctxR, ix1, iy1, rx2, ry2, '#4ade80', 3, 10);
+  // angle arcs
+  drawAngleArc(ctxR, mx, my, 50, -Math.PI/2-iRad, -Math.PI/2, '#f87171', `i=${iDeg}°`);
+  drawAngleArc(ctxR, mx, my, 60, -Math.PI/2, -Math.PI/2+iRad, '#4ade80', `r=${iDeg}°`);
+  // labels
+  ctxR.fillStyle='#f87171'; ctxR.font='bold 14px system-ui'; ctxR.textAlign='right';
+  ctxR.fillText('Incident ray', ix2-10, iy2-10);
+  ctxR.fillStyle='#4ade80'; ctxR.textAlign='left';
+  ctxR.fillText('Reflected ray', rx2+10, ry2-10);
+  // law
+  ctxR.fillStyle='#bae6fd'; ctxR.font='bold 16px system-ui'; ctxR.textAlign='center';
+  ctxR.fillText(`Law of Reflection: angle i (${iDeg}°) = angle r (${iDeg}°)`, mx, h-30);
+  // diffuse roughness
+  if(surfaceType.value==='rough') {
+    ctxR.strokeStyle='rgba(148,163,184,0.3)'; ctxR.lineWidth=1;
+    for(let a=-80; a<=80; a+=8) {
+      if(Math.abs(a-iDeg)<5) continue;
+      const rad=a*D2R, rx=mx+120*Math.sin(rad), ry=my-120*Math.cos(rad);
+      ctxR.beginPath(); ctxR.moveTo(mx,my); ctxR.lineTo(rx,ry); ctxR.stroke();
+    }
+    ctxR.fillStyle='#94a3b8'; ctxR.font='12px system-ui'; ctxR.textAlign='center';
+    ctxR.fillText('Diffuse reflection (rough surface)', mx, 25);
+  }
+}
+angleReflect.addEventListener('input', () => {
+  valIncidence.textContent=angleReflect.value+'°';
+  reflectData.innerHTML=`Angle of incidence (i) = ${angleReflect.value}°<br>Angle of reflection (r) = ${angleReflect.value}°<br>Verified: i = r ✓`;
+  drawReflect();
+});
+surfaceType.addEventListener('change', drawReflect);
+drawReflect();
+
+/* ===== REFRACTION ===== */
+const cRefract = document.getElementById('canvasRefract'), ctxRf = cRefract.getContext('2d');
+function drawRefract() {
+  const w=cRefract.width, h=cRefract.height, iDeg=+angleI.value;
+  const n1=+n1.value, n2=+n2.value;
+  ctxRf.fillStyle='#0b1220'; ctxRf.fillRect(0,0,w,h);
+  const mx=w/2, my=h/2;
+  // media labels
+  ctxRf.fillStyle='#94a3b8'; ctxRf.font='14px system-ui'; ctxRf.textAlign='center';
+  ctxRf.fillText(`Medium 1: n₁ = ${n1.toFixed(2)}`, w/4, 30);
+  ctxRf.fillText(`Medium 2: n₂ = ${n2.toFixed(2)}`, 3*w/4, 30);
+  // interface
+  ctxRf.strokeStyle='#475569'; ctxRf.lineWidth=2;
+  ctxRf.beginPath(); ctxRf.moveTo(mx,40); ctxRf.lineTo(mx,h-40); ctxRf.stroke();
+  // normal
+  drawDashedLine(ctxRf, mx, 50, mx, h-50, '#64748b');
+  ctxRf.fillStyle='#64748b'; ctxRf.fillText('Normal', mx+30, 60);
+  // incident
+  const iRad=iDeg*D2R, len=220;
+  const ix2=mx-len*Math.sin(iRad), iy2=50+len*Math.cos(iRad);
+  drawArrow(ctxRf, ix2, iy2, mx, 50, '#f87171', 3, 10);
+  // refracted (Snell's law: n1 sin i = n2 sin r)
+  let rRad = Math.asin(Math.min(1, (n1/n2)*Math.sin(iRad)));
+  if(n2<n1 && iRad>Math.asin(n2/n1)) rRad=null; // TIR
+  if(rRad!==null) {
+    const rx2=mx+len*Math.sin(rRad), ry2=50+len*Math.cos(rRad);
+    drawArrow(ctxRf, mx, 50, rx2, ry2, '#60a5fa', 3, 10);
+    const rDeg=(rRad*R2D).toFixed(1);
+    ctxRf.fillStyle='#60a5fa'; ctxRf.font='bold 14px system-ui'; ctxRf.textAlign='left';
+    ctxRf.fillText(`Refracted ray (r = ${rDeg}°)`, rx2+10, ry2);
+    // angle arcs
+    drawAngleArc(ctxRf, mx, 50, 45, -Math.PI/2-iRad, -Math.PI/2, '#f87171', `i=${iDeg}°`);
+    drawAngleArc(ctxRf, mx, 50, 55, -Math.PI/2, -Math.PI/2+rRad, '#60a5fa', `r=${rDeg}°`);
+    // formula verification
+    const calcN = (Math.sin(iRad)/Math.sin(rRad)).toFixed(2);
+    ctxRf.fillStyle='#bae6fd'; ctxRf.font='bold 15px system-ui'; ctxRf.textAlign='center';
+    ctxRf.fillText(`n = sin(${iDeg}°) / sin(${rDeg}°) = ${calcN} ≈ ${n2.toFixed(2)} ✓`, w/2, h-25);
+    refractData.innerHTML=`n₁ = ${n1.toFixed(2)}, n₂ = ${n2.toFixed(2)}<br>i = ${iDeg}°, r = ${rDeg}°<br>n = sin(${iDeg}°) / sin(${rDeg}°) = ${calcN} ✓`;
+  } else {
+    // TIR
+    const rx2=mx+len*Math.sin(iRad), ry2=50-len*Math.cos(iRad);
+    drawArrow(ctxRf, mx, 50, rx2, ry2, '#4ade80', 3, 10);
+    ctxRf.fillStyle='#4ade80'; ctxRf.font='bold 14px system-ui'; ctxRf.textAlign='left';
+    ctxRf.fillText('Total Internal Reflection!', rx2+10, ry2);
+    const cRad=Math.asin(n2/n1), cDeg=(cRad*R2D).toFixed(1);
+    ctxRf.fillStyle='#fbbf24'; ctxRf.font='bold 15px system-ui'; ctxRf.textAlign='center';
+    ctxRf.fillText(`i (${iDeg}°) > critical angle (${cDeg}°) → TIR! No refraction.`, w/2, h-25);
+    refractData.innerHTML=`n₁ = ${n1.toFixed(2)}, n₂ = ${n2.toFixed(2)}<br>Critical angle c = ${cDeg}°<br>i = ${iDeg}° > c → Total Internal Reflection!`;
+    drawAngleArc(ctxRf, mx, 50, 45, -Math.PI/2-iRad, -Math.PI/2, '#f87171', `i=${iDeg}°`);
+  }
+  ctxRf.fillStyle='#f87171'; ctxRf.font='bold 14px system-ui'; ctxRf.textAlign='right';
+  ctxRf.fillText('Incident ray', ix2-10, iy2);
+}
+angleI.addEventListener('input', () => { valI.textContent=angleI.value+'°'; drawRefract(); });
+n1.addEventListener('change', drawRefract);
+n2.addEventListener('change', drawRefract);
+drawRefract();
+
+/* ===== PRACTICAL BLOCKS ===== */
+const cPrac = document.getElementById('canvasPractical'), ctxP = cPrac.getContext('2d');
+let pracShape='rect';
+document.querySelectorAll('.prism-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.prism-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active'); pracShape=btn.dataset.shape; drawPractical();
+  });
+});
+function drawPractical() {
+  const w=cPrac.width, h=cPrac.height, n=+blockN.value, iDeg=+angleLaser.value;
+  const iRad=iDeg*D2R; const sinR=Math.sin(iRad)/n, rRad=Math.asin(Math.min(1,Math.abs(sinR)))*Math.sign(sinR);
+  ctxP.fillStyle='#0b1220'; ctxP.fillRect(0,0,w,h);
+  // air label
+  ctxP.fillStyle='#94a3b8'; ctxP.font='13px system-ui'; ctxP.textAlign='left';
+  ctxP.fillText('Air (n≈1)', 20, 25);
+
+  if(pracShape==='rect') {
+    const bx=w/2-80, by=h/2-60, bw=160, bh=120;
+    ctxP.fillStyle='rgba(56,189,248,0.12)'; ctxP.strokeStyle='rgba(56,189,248,0.5)'; ctxP.lineWidth=2;
+    ctxP.fillRect(bx,by,bw,bh); ctxP.strokeRect(bx,by,bw,bh);
+    ctxP.fillStyle='rgba(56,189,248,0.6)'; ctxP.font='13px system-ui'; ctxP.textAlign='center';
+    ctxP.fillText(`Glass (n=${n.toFixed(2)})`, w/2, h/2+6);
+    // entry ray
+    const ex1=bx-180, ey1=by+bh/2 - 100*Math.tan(iRad), ex2=bx, ey2=by+bh/2;
+    drawArrow(ctxP, ex1, ey1, ex2, ey2, '#f87171', 3, 10);
+    // inside ray
+    const ix2=bx+bw, iy2=ey2 + bw*Math.tan(rRad);
+    drawArrow(ctxP, ex2, ey2, ix2, iy2, '#fbbf24', 3, 10);
+    // exit ray (parallel to incident)
+    const ex3=ix2+180, ey3=iy2 + 180*Math.tan(iRad);
+    drawArrow(ctxP, ix2, iy2, ex3, ey3, '#60a5fa', 3, 10);
+    // normals
+    if(showNormals.checked) {
+      drawDashedLine(ctxP, bx, by-30, bx, by+bh+30, '#64748b');
+      drawDashedLine(ctxP, bx+bw, by-30, bx+bw, by+bh+30, '#64748b');
+    }
+    // data
+    const rDeg=(rRad*R2D).toFixed(1);
+    practicalData.innerHTML=`Shape: Rectangular | Material: Glass (n=${n.toFixed(2)})<br>Incident: ${iDeg}° | Refracted inside: ${rDeg}° | Emergent: ${iDeg}° (parallel)<br>Lateral displacement: ray shifts sideways.`;
+  }
+  else if(pracShape==='semi') {
+    const cx=w/2, cy=h/2+20, r=100;
+    ctxP.fillStyle='rgba(56,189,248,0.12)'; ctxP.strokeStyle='rgba(56,189,248,0.5)'; ctxP.lineWidth=2;
+    ctxP.beginPath(); ctxP.arc(cx,cy,r,Math.PI,0); ctxP.closePath(); ctxP.fill(); ctxP.stroke();
+    // flat face
+    ctxP.beginPath(); ctxP.moveTo(cx-r,cy); ctxP.lineTo(cx+r,cy); ctxP.stroke();
+    ctxP.fillStyle='rgba(56,189,248,0.6)'; ctxP.font='13px system-ui'; ctxP.textAlign='center';
+    ctxP.fillText(`Glass (n=${n.toFixed(2)})`, cx, cy-30);
+    // ray along radius → hits flat face at some angle
+    const entryX=cx-r-120, entryY=cy;
+    drawArrow(ctxP, entryX, entryY, cx-r, cy, '#f87171', 3, 10); // to curved face (along radius)
+    // travels along radius, hits flat face
+    const flatAngle=iDeg*D2R; // angle to normal at flat face
+    const fx=cx+r*Math.cos(Math.PI-flatAngle), fy=cy-r*Math.sin(flatAngle);
+    drawArrow(ctxP, cx-r, cy, fx, fy, '#fbbf24', 3, 10);
+    // exit or TIR at flat face
+    const n1=n, n2=1.0; const sinR2=(n1/n2)*Math.sin(flatAngle);
+    if(sinR2<=1) {
+      const r2Rad=Math.asin(sinR2);
+      const ex=fx+150*Math.cos(-r2Rad), ey=fy-150*Math.sin(r2Rad);
+      drawArrow(ctxP, fx, fy, ex, ey, '#60a5fa', 3, 10);
+    } else {
+      const rx=fx+150*Math.cos(flatAngle), ry=fy+150*Math.sin(flatAngle);
+      drawArrow(ctxP, fx, fy, rx, ry, '#4ade80', 3, 10);
+    }
+    if(showNormals.checked) {
+      drawDashedLine(ctxP, cx, cy-120, cx, cy+30, '#64748b'); // normal at flat face centre
+    }
+    practicalData.innerHTML=`Shape: Semi-circular | Material: Glass (n=${n.toFixed(2)})<br>Ray enters along radius → no bending at curved face<br>Bending only at flat face. Measure i and r there.`;
+  }
+  else if(pracShape==='tri') {
+    const cx=w/2, cy=h/2, side=130;
+    const hx=cx, hy=cy-side*Math.sqrt(3)/3;
+    const p1={x:cx-side/2, y:cy+side*Math.sqrt(3)/6}, p2={x:cx+side/2, y:cy+side*Math.sqrt(3)/6};
+    ctxP.fillStyle='rgba(56,189,248,0.12)'; ctxP.strokeStyle='rgba(56,189,248,0.5)'; ctxP.lineWidth=2;
+    ctxP.beginPath(); ctxP.moveTo(hx,hy); ctxP.lineTo(p1.x,p1.y); ctxP.lineTo(p2.x,p2.y); ctxP.closePath();
+    ctxP.fill(); ctxP.stroke();
+    ctxP.fillStyle='rgba(56,189,248,0.6)'; ctxP.font='13px system-ui'; ctxP.textAlign='center';
+    ctxP.fillText(`Glass (n=${n.toFixed(2)})`, cx, cy+10);
+    // simplified ray entering left face
+    const rayY=cy-20;
+    drawArrow(ctxP, hx-150, rayY, hx-20, rayY-10, '#f87171', 3, 10);
+    drawArrow(ctxP, hx-20, rayY-10, p2.x+30, p2.y-40, '#fbbf24', 3, 10);
+    drawArrow(ctxP, p2.x+30, p2.y-40, p2.x+150, p2.y-80, '#60a5fa', 3, 10);
+    practicalData.innerHTML=`Shape: Triangular prism | Material: Glass (n=${n.toFixed(2)})<br>Light bends at BOTH faces.<br>Can demonstrate dispersion — different colours bend by different amounts.`;
+  }
+}
+angleLaser.addEventListener('input', () => { valLaser.textContent=angleLaser.value+'°'; drawPractical(); });
+blockN.addEventListener('change', drawPractical);
+showNormals.addEventListener('change', drawPractical);
+drawPractical();
+
+/* ===== TIR ===== */
+const cTIR = document.getElementById('canvasTIR'), ctxT = cTIR.getContext('2d');
+function drawTIR() {
+  const w=cTIR.width, h=cTIR.height, iDeg=+angleTIR.value, n=+tirN.value;
+  const cRad=Math.asin(1/n), cDeg=cRad*R2D;
+  ctxT.fillStyle='#0b1220'; ctxT.fillRect(0,0,w,h);
+  const mx=w/2, my=h-60;
+  // medium label
+  ctxT.fillStyle='#94a3b8'; ctxT.font='13px system-ui'; ctxT.textAlign='center';
+  ctxT.fillText(`Denser medium (n = ${n.toFixed(2)})`, w/2, h-30);
+  ctxT.fillText('Air (n = 1.00)', w/2, 30);
+  // interface
+  ctxT.strokeStyle='#475569'; ctxT.lineWidth=2;
+  ctxT.beginPath(); ctxT.moveTo(30,my); ctxT.lineTo(w-30,my); ctxT.stroke();
+  // normal
+  drawDashedLine(ctxT, mx, 40, mx, my+40, '#64748b');
+  ctxT.fillStyle='#64748b'; ctxT.fillText('Normal', mx+28, 55);
+  // incident ray
+  const iRad=iDeg*D2R, len=140;
+  const ix2=mx-len*Math.sin(iRad), iy2=my-len*Math.cos(iRad);
+  drawArrow(ctxT, ix2, iy2, mx, my, '#f87171', 3, 10);
+  ctxT.fillStyle='#f87171'; ctxT.font='bold 13px system-ui'; ctxT.textAlign='right';
+  ctxT.fillText(`Incident (${iDeg}°)`, ix2-10, iy2);
+  // critical angle arc
+  drawAngleArc(ctxT, mx, my, 40, -Math.PI/2-cRad, -Math.PI/2, '#fbbf24', `c=${cDeg.toFixed(1)}°`);
+  if(iDeg>cDeg) {
+    // TIR
+    const rx2=mx+len*Math.sin(iRad), ry2=my-len*Math.cos(iRad);
+    drawArrow(ctxT, mx, my, rx2, ry2, '#4ade80', 3, 10);
+    ctxT.fillStyle='#4ade80'; ctxT.font='bold 13px system-ui'; ctxR.textAlign='left';
+    ctxT.fillText('Reflected (TIR)', rx2+10, ry2);
+    ctxT.fillStyle='#fbbf24'; ctxT.font='bold 15px system-ui'; ctxT.textAlign='center';
+    ctxT.fillText(`i (${iDeg}°) > c (${cDeg.toFixed(1)}°) → Total Internal Reflection!`, w/2, h/2);
+    tirData.innerHTML=`n = ${n.toFixed(2)} → critical angle c = ${cDeg.toFixed(1)}°<br>Incident = ${iDeg}° > c → <strong>TIR occurs!</strong><br>No refracted ray — 100% reflected.`;
+  } else {
+    // partial refraction
+    const sinR=n*Math.sin(iRad); const rRad=Math.asin(Math.min(1,sinR));
+    const rx2=mx+len*Math.sin(rRad), ry2=my-len*Math.cos(rRad);
+    drawArrow(ctxT, mx, my, rx2, ry2, '#60a5fa', 3, 10);
+    ctxT.fillStyle='#60a5fa'; ctxT.font='bold 13px system-ui'; ctxT.textAlign='left';
+    ctxT.fillText(`Refracted (${(rRad*R2D).toFixed(1)}°)`, rx2+10, ry2);
+    // weak reflection
+    const refx2=mx+80*Math.sin(iRad), refy2=my-80*Math.cos(iRad);
+    ctxT.strokeStyle='rgba(74,222,128,0.3)'; ctxT.lineWidth=1.5;
+    ctxT.beginPath(); ctxT.moveTo(mx,my); ctxT.lineTo(refx2,refy2); ctxT.stroke();
+    ctxT.fillStyle='rgba(148,163,184,0.8)'; ctxT.font='12px system-ui';
+    ctxT.fillText('Weak reflection', refx2+5, refy2);
+    // angle
+    drawAngleArc(ctxT, mx, my, 55, -Math.PI/2-iRad, -Math.PI/2, '#f87171', `${iDeg}°`);
+    ctxT.fillStyle='#bae6fd'; ctxT.font='bold 14px system-ui'; ctxT.textAlign='center';
+    ctxT.fillText(`i (${iDeg}°) < c (${cDeg.toFixed(1)}°) → Some light refracts out`, w/2, h/2);
+    tirData.innerHTML=`n = ${n.toFixed(2)} → critical angle c = ${cDeg.toFixed(1)}°<br>Incident = ${iDeg}° < c → <strong>Partial refraction + reflection</strong><br>Refracted angle = ${(rRad*R2D).toFixed(1)}°`;
+  }
+}
+angleTIR.addEventListener('input', () => { valTIR.textContent=angleTIR.value+'°'; drawTIR(); });
+tirN.addEventListener('change', drawTIR);
+drawTIR();
+
+/* ===== OPTICAL FIBRE ===== */
+const cFibre = document.getElementById('canvasFibre'), ctxF = cFibre.getContext('2d');
+let tFibre = 0;
+function drawFibre() {
+  const w=cFibre.width, h=cFibre.height;
+  ctxF.fillStyle='#0b1220'; ctxF.fillRect(0,0,w,h);
+  const fy=h/2, fh=40; // fibre centre and half-height
+  // cladding
+  ctxF.fillStyle='rgba(148,163,184,0.15)'; ctxF.fillRect(30,fy-fh-10,w-60,2*fh+20);
+  ctxF.strokeStyle='rgba(148,163,184,0.4)'; ctxF.lineWidth=2;
+  ctxF.strokeRect(30,fy-fh-10,w-60,2*fh+20);
+  // core
+  ctxF.fillStyle='rgba(56,189,248,0.15)'; ctxF.fillRect(30,fy-fh/2,w-60,fh);
+  ctxF.strokeStyle='rgba(56,189,248,0.5)'; ctxF.lineWidth=1.5;
+  ctxF.strokeRect(30,fy-fh/2,w-60,fh);
+  // labels
+  ctxF.fillStyle='#94a3b8'; ctxF.font='12px system-ui'; ctxF.textAlign='left';
+  ctxF.fillText('Cladding (lower n)', 35, fy-fh-15);
+  ctxF.fillStyle='#38bdf8'; ctxF.fillText('Core (higher n)', 35, fy-2);
+  // bouncing light pulse
+  const speed=3, period=w-60;
+  const x = 30 + ((tFibre*speed) % period);
+  const phase = ((tFibre*speed) % period) / period;
+  // zigzag path
+  const zigzag = Math.sin(phase * Math.PI * 6) * (fh/2-4);
+  const y = fy + zigzag;
+  // glow
+  const grad = ctxF.createRadialGradient(x,y,2,x,y,12);
+  grad.addColorStop(0, 'rgba(251,191,36,0.9)');
+  grad.addColorStop(1, 'rgba(251,191,36,0)');
+  ctxF.fillStyle=grad; ctxF.beginPath(); ctxF.arc(x,y,12,0,Math.PI*2); ctxF.fill();
+  // dot
+  ctxF.fillStyle='#fbbf24'; ctxF.beginPath(); ctxF.arc(x,y,3,0,Math.PI*2); ctxF.fill();
+  tFibre++;
+  requestAnimationFrame(drawFibre);
+}
+drawFibre();
+</script>
+</body>
+</html>
