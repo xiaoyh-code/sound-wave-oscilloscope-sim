@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Light Wave Simulation — Reflection &amp; Refraction</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <style>
   :root {
     --bg:#0f172a; --bg2:#1e293b; --text:#e2e8f0; --muted:#94a3b8;
@@ -92,6 +93,11 @@
     background:rgba(0,0,0,.2); border-radius:8px; padding:12px; font-family:"Courier New", monospace;
     font-size:.9rem; color:#cbd5e1; line-height:1.8;
   }
+
+  .three-container { width:100%; height:340px; border-radius:12px; overflow:hidden; margin-bottom:16px; }
+  .view-toggle { display:flex; gap:10px; margin-bottom:10px; }
+  .view-toggle button { background:var(--card); border:1px solid var(--border); color:var(--muted); padding:6px 14px; border-radius:8px; cursor:pointer; font-size:.85rem; }
+  .view-toggle button.active { background:rgba(56,189,248,.15); color:var(--accent); border-color:rgba(56,189,248,.4); }
 </style>
 </head>
 <body>
@@ -133,7 +139,12 @@
         <span class="legend-item"><span class="dot" style="background:#94a3b8"></span> Direction of travel</span>
       </div>
     </div>
-    <div class="canvas-wrap"><canvas id="canvasNature" width="900" height="320"></canvas></div>
+    <div class="view-toggle" id="natureToggle">
+  <button class="active" onclick="showView('nature','2d')">2D View</button>
+  <button onclick="showView('nature','3d')">3D View</button>
+</div>
+<div class="canvas-wrap" id="nature2d"><canvas id="canvasNature" width="900" height="320"></canvas></div>
+<div class="three-container" id="nature3d" style="display:none"></div>
     <div class="controls">
       <div class="control">
         <label>Wave speed <span id="valSpeed" class="value-display">medium</span></label>
@@ -165,7 +176,12 @@
       <p>When light hits a smooth surface, it reflects. The <strong>angle of incidence (i)</strong> equals the <strong>angle of reflection (r)</strong>, measured from the <strong>normal</strong> (a line perpendicular to the surface).</p>
       <div class="formula-box">∠i = ∠r &nbsp;&nbsp;(both measured from the normal)</div>
     </div>
-    <div class="canvas-wrap"><canvas id="canvasReflect" width="900" height="400"></canvas></div>
+    <div class="view-toggle" id="reflectToggle">
+  <button class="active" onclick="showView('reflect','2d')">2D View</button>
+  <button onclick="showView('reflect','3d')">3D View</button>
+</div>
+<div class="canvas-wrap" id="reflect2d"><canvas id="canvasReflect" width="900" height="400"></canvas></div>
+<div class="three-container" id="reflect3d" style="display:none"></div>
     <div class="controls">
       <div class="control">
         <label>Angle of incidence <span id="valIncidence" class="value-display">45°</span></label>
@@ -203,7 +219,12 @@
       <div class="formula-box">n = sin(i) / sin(r) &nbsp;&nbsp;&nbsp; or &nbsp;&nbsp;&nbsp; n₁ sin θ₁ = n₂ sin θ₂</div>
       <p>Light bends <strong>towards the normal</strong> when entering a denser medium (higher n), and <strong>away from the normal</strong> when entering a less dense medium.</p>
     </div>
-    <div class="canvas-wrap"><canvas id="canvasRefract" width="900" height="420"></canvas></div>
+    <div class="view-toggle" id="refractToggle">
+  <button class="active" onclick="showView('refract','2d')">2D View</button>
+  <button onclick="showView('refract','3d')">3D View</button>
+</div>
+<div class="canvas-wrap" id="refract2d"><canvas id="canvasRefract" width="900" height="420"></canvas></div>
+<div class="three-container" id="refract3d" style="display:none"></div>
     <div class="controls">
       <div class="control">
         <label>Angle of incidence <span id="valI" class="value-display">40°</span></label>
@@ -252,7 +273,12 @@
       <button class="prism-btn" data-shape="semi">🔵 Semi-circular Block</button>
       <button class="prism-btn" data-shape="tri">🔺 Triangular Prism</button>
     </div>
-    <div class="canvas-wrap"><canvas id="canvasPractical" width="900" height="460"></canvas></div>
+    <div class="view-toggle" id="practicalToggle">
+  <button class="active" onclick="showView('practical','2d')">2D View</button>
+  <button onclick="showView('practical','3d')">3D View</button>
+</div>
+<div class="canvas-wrap" id="practical2d"><canvas id="canvasPractical" width="900" height="460"></canvas></div>
+<div class="three-container" id="practical3d" style="display:none"></div>
     <div class="controls">
       <div class="control">
         <label>Laser angle <span id="valLaser" class="value-display">30°</span></label>
@@ -297,7 +323,12 @@
     </div>
     <div class="grid-2">
       <div>
-        <div class="canvas-wrap"><canvas id="canvasTIR" width="440" height="380"></canvas></div>
+        <div class="view-toggle" id="tirToggle">
+  <button class="active" onclick="showView('tir','2d')">2D View</button>
+  <button onclick="showView('tir','3d')">3D View</button>
+</div>
+<div class="canvas-wrap" id="tir2d"><canvas id="canvasTIR" width="440" height="380"></canvas></div>
+<div class="three-container" id="tir3d" style="display:none"></div>
         <div class="controls">
           <div class="control">
             <label>Incident angle <span id="valTIR" class="value-display">50°</span></label>
@@ -369,6 +400,9 @@ function drawAngleArc(ctx, cx, cy, radius, startAngle, endAngle, color, label) {
 
 /* ===== NATURE OF LIGHT ===== */
 const cNature = document.getElementById('canvasNature'), ctxN = cNature.getContext('2d');
+const speedNature = document.getElementById('speedNature');
+const ampNature = document.getElementById('ampNature');
+const lambdaNature = document.getElementById('lambdaNature');
 let tNature = 0;
 function drawNature() {
   const w=cNature.width, h=cNature.height, speed=+speedNature.value, amp=+ampNature.value, lambda=+lambdaNature.value;
@@ -407,6 +441,10 @@ drawNature();
 
 /* ===== REFLECTION ===== */
 const cReflect = document.getElementById('canvasReflect'), ctxR = cReflect.getContext('2d');
+const angleReflect = document.getElementById('angleReflect');
+const surfaceType = document.getElementById('surfaceType');
+const valIncidence = document.getElementById('valIncidence');
+const reflectData = document.getElementById('reflectData');
 function drawReflect() {
   const w=cReflect.width, h=cReflect.height, iDeg=+angleReflect.value;
   ctxR.fillStyle='#0b1220'; ctxR.fillRect(0,0,w,h);
@@ -459,15 +497,20 @@ drawReflect();
 
 /* ===== REFRACTION ===== */
 const cRefract = document.getElementById('canvasRefract'), ctxRf = cRefract.getContext('2d');
+const angleI = document.getElementById('angleI');
+const n1 = document.getElementById('n1');
+const n2 = document.getElementById('n2');
+const valI = document.getElementById('valI');
+const refractData = document.getElementById('refractData');
 function drawRefract() {
   const w=cRefract.width, h=cRefract.height, iDeg=+angleI.value;
-  const n1=+n1.value, n2=+n2.value;
+  const n1v=+n1.value, n2v=+n2.value;
   ctxRf.fillStyle='#0b1220'; ctxRf.fillRect(0,0,w,h);
   const mx=w/2, my=h/2;
   // media labels
   ctxRf.fillStyle='#94a3b8'; ctxRf.font='14px system-ui'; ctxRf.textAlign='center';
-  ctxRf.fillText(`Medium 1: n₁ = ${n1.toFixed(2)}`, w/4, 30);
-  ctxRf.fillText(`Medium 2: n₂ = ${n2.toFixed(2)}`, 3*w/4, 30);
+  ctxRf.fillText(`Medium 1: n₁ = ${n1v.toFixed(2)}`, w/4, 30);
+  ctxRf.fillText(`Medium 2: n₂ = ${n2v.toFixed(2)}`, 3*w/4, 30);
   // interface
   ctxRf.strokeStyle='#475569'; ctxRf.lineWidth=2;
   ctxRf.beginPath(); ctxRf.moveTo(mx,40); ctxRf.lineTo(mx,h-40); ctxRf.stroke();
@@ -479,8 +522,8 @@ function drawRefract() {
   const ix2=mx-len*Math.sin(iRad), iy2=50+len*Math.cos(iRad);
   drawArrow(ctxRf, ix2, iy2, mx, 50, '#f87171', 3, 10);
   // refracted (Snell's law: n1 sin i = n2 sin r)
-  let rRad = Math.asin(Math.min(1, (n1/n2)*Math.sin(iRad)));
-  if(n2<n1 && iRad>Math.asin(n2/n1)) rRad=null; // TIR
+  let rRad = Math.asin(Math.min(1, (n1v/n2v)*Math.sin(iRad)));
+  if(n2v<n1v && iRad>Math.asin(n2v/n1v)) rRad=null; // TIR
   if(rRad!==null) {
     const rx2=mx+len*Math.sin(rRad), ry2=50+len*Math.cos(rRad);
     drawArrow(ctxRf, mx, 50, rx2, ry2, '#60a5fa', 3, 10);
@@ -493,18 +536,18 @@ function drawRefract() {
     // formula verification
     const calcN = (Math.sin(iRad)/Math.sin(rRad)).toFixed(2);
     ctxRf.fillStyle='#bae6fd'; ctxRf.font='bold 15px system-ui'; ctxRf.textAlign='center';
-    ctxRf.fillText(`n = sin(${iDeg}°) / sin(${rDeg}°) = ${calcN} ≈ ${n2.toFixed(2)} ✓`, w/2, h-25);
-    refractData.innerHTML=`n₁ = ${n1.toFixed(2)}, n₂ = ${n2.toFixed(2)}<br>i = ${iDeg}°, r = ${rDeg}°<br>n = sin(${iDeg}°) / sin(${rDeg}°) = ${calcN} ✓`;
+    ctxRf.fillText(`n = sin(${iDeg}°) / sin(${rDeg}°) = ${calcN} ≈ ${n2v.toFixed(2)} ✓`, w/2, h-25);
+    refractData.innerHTML=`n₁ = ${n1v.toFixed(2)}, n₂ = ${n2v.toFixed(2)}<br>i = ${iDeg}°, r = ${rDeg}°<br>n = sin(${iDeg}°) / sin(${rDeg}°) = ${calcN} ✓`;
   } else {
     // TIR
     const rx2=mx+len*Math.sin(iRad), ry2=50-len*Math.cos(iRad);
     drawArrow(ctxRf, mx, 50, rx2, ry2, '#4ade80', 3, 10);
     ctxRf.fillStyle='#4ade80'; ctxRf.font='bold 14px system-ui'; ctxRf.textAlign='left';
     ctxRf.fillText('Total Internal Reflection!', rx2+10, ry2);
-    const cRad=Math.asin(n2/n1), cDeg=(cRad*R2D).toFixed(1);
+    const cRad=Math.asin(n2v/n1v), cDeg=(cRad*R2D).toFixed(1);
     ctxRf.fillStyle='#fbbf24'; ctxRf.font='bold 15px system-ui'; ctxRf.textAlign='center';
     ctxRf.fillText(`i (${iDeg}°) > critical angle (${cDeg}°) → TIR! No refraction.`, w/2, h-25);
-    refractData.innerHTML=`n₁ = ${n1.toFixed(2)}, n₂ = ${n2.toFixed(2)}<br>Critical angle c = ${cDeg}°<br>i = ${iDeg}° > c → Total Internal Reflection!`;
+    refractData.innerHTML=`n₁ = ${n1v.toFixed(2)}, n₂ = ${n2v.toFixed(2)}<br>Critical angle c = ${cDeg}°<br>i = ${iDeg}° > c → Total Internal Reflection!`;
     drawAngleArc(ctxRf, mx, 50, 45, -Math.PI/2-iRad, -Math.PI/2, '#f87171', `i=${iDeg}°`);
   }
   ctxRf.fillStyle='#f87171'; ctxRf.font='bold 14px system-ui'; ctxRf.textAlign='right';
@@ -517,6 +560,11 @@ drawRefract();
 
 /* ===== PRACTICAL BLOCKS ===== */
 const cPrac = document.getElementById('canvasPractical'), ctxP = cPrac.getContext('2d');
+const angleLaser = document.getElementById('angleLaser');
+const blockN = document.getElementById('blockN');
+const showNormals = document.getElementById('showNormals');
+const valLaser = document.getElementById('valLaser');
+const practicalData = document.getElementById('practicalData');
 let pracShape='rect';
 document.querySelectorAll('.prism-btn').forEach(btn => {
   btn.addEventListener('click', () => {
@@ -610,6 +658,10 @@ drawPractical();
 
 /* ===== TIR ===== */
 const cTIR = document.getElementById('canvasTIR'), ctxT = cTIR.getContext('2d');
+const angleTIR = document.getElementById('angleTIR');
+const tirN = document.getElementById('tirN');
+const valTIR = document.getElementById('valTIR');
+const tirData = document.getElementById('tirData');
 function drawTIR() {
   const w=cTIR.width, h=cTIR.height, iDeg=+angleTIR.value, n=+tirN.value;
   const cRad=Math.asin(1/n), cDeg=cRad*R2D;
@@ -637,7 +689,7 @@ function drawTIR() {
     // TIR
     const rx2=mx+len*Math.sin(iRad), ry2=my-len*Math.cos(iRad);
     drawArrow(ctxT, mx, my, rx2, ry2, '#4ade80', 3, 10);
-    ctxT.fillStyle='#4ade80'; ctxT.font='bold 13px system-ui'; ctxR.textAlign='left';
+    ctxT.fillStyle='#4ade80'; ctxT.font='bold 13px system-ui'; ctxT.textAlign='left';
     ctxT.fillText('Reflected (TIR)', rx2+10, ry2);
     ctxT.fillStyle='#fbbf24'; ctxT.font='bold 15px system-ui'; ctxT.textAlign='center';
     ctxT.fillText(`i (${iDeg}°) > c (${cDeg.toFixed(1)}°) → Total Internal Reflection!`, w/2, h/2);
@@ -703,6 +755,394 @@ function drawFibre() {
   requestAnimationFrame(drawFibre);
 }
 drawFibre();
+
+/* ===== THREE.JS 3D VIEWS ===== */
+function showView(prefix, mode) {
+  document.getElementById(prefix+'2d').style.display = mode==='2d'?'block':'none';
+  document.getElementById(prefix+'3d').style.display = mode==='3d'?'block':'none';
+  const btns = document.getElementById(prefix+'Toggle').querySelectorAll('button');
+  btns[0].classList.toggle('active', mode==='2d');
+  btns[1].classList.toggle('active', mode==='3d');
+}
+
+// Nature of Light 3D - EM Wave
+let sceneNature, cameraNature, rendererNature, natureAni;
+function initNature3D() {
+  const container = document.getElementById('nature3d');
+  if(!container) return;
+  sceneNature = new THREE.Scene();
+  sceneNature.background = new THREE.Color(0x0b1220);
+  cameraNature = new THREE.PerspectiveCamera(50, container.clientWidth/container.clientHeight, 0.1, 1000);
+  cameraNature.position.set(0, 5, 20);
+  cameraNature.lookAt(0,0,0);
+  rendererNature = new THREE.WebGLRenderer({antialias:true});
+  rendererNature.setSize(container.clientWidth, container.clientHeight);
+  container.appendChild(rendererNature.domElement);
+
+  const pointsE = [], pointsB = [];
+  for(let x=-15; x<=15; x+=0.2) {
+    pointsE.push(new THREE.Vector3(x, Math.sin(x)*2, 0));
+    pointsB.push(new THREE.Vector3(x, 0, Math.sin(x)*2));
+  }
+  const curveE = new THREE.CatmullRomCurve3(pointsE);
+  const curveB = new THREE.CatmullRomCurve3(pointsB);
+  const geoE = new THREE.TubeGeometry(curveE, 100, 0.15, 8, false);
+  const geoB = new THREE.TubeGeometry(curveB, 100, 0.15, 8, false);
+  const matE = new THREE.MeshBasicMaterial({color:0xf87171});
+  const matB = new THREE.MeshBasicMaterial({color:0x4ade80});
+  const meshE = new THREE.Mesh(geoE, matE);
+  const meshB = new THREE.Mesh(geoB, matB);
+  sceneNature.add(meshE);
+  sceneNature.add(meshB);
+
+  // Direction arrow
+  const arrowDir = new THREE.Vector3(1,0,0);
+  const arrowOrigin = new THREE.Vector3(0, -4, 0);
+  const arrowLen = 8;
+  const arrowColor = 0x94a3b8;
+  const arrow = new THREE.ArrowHelper(arrowDir, arrowOrigin, arrowLen, arrowColor, 1, 0.5);
+  sceneNature.add(arrow);
+
+  // Grid
+  const grid = new THREE.GridHelper(40, 40, 0x1e293b, 0x1e293b);
+  grid.position.y = -5;
+  sceneNature.add(grid);
+
+  let t = 0;
+  function animate() {
+    natureAni = requestAnimationFrame(animate);
+    t += 0.05;
+    const ptsE=[], ptsB=[];
+    for(let x=-15; x<=15; x+=0.2) {
+      ptsE.push(new THREE.Vector3(x, Math.sin(x+t)*2, 0));
+      ptsB.push(new THREE.Vector3(x, 0, Math.sin(x+t)*2));
+    }
+    meshE.geometry.dispose();
+    meshB.geometry.dispose();
+    const cE = new THREE.CatmullRomCurve3(ptsE);
+    const cB = new THREE.CatmullRomCurve3(ptsB);
+    meshE.geometry = new THREE.TubeGeometry(cE, 100, 0.15, 8, false);
+    meshB.geometry = new THREE.TubeGeometry(cB, 100, 0.15, 8, false);
+    rendererNature.render(sceneNature, cameraNature);
+  }
+  animate();
+}
+
+// Reflection 3D
+let sceneReflect, cameraReflect, rendererReflect, reflectAni;
+function initReflect3D() {
+  const container = document.getElementById('reflect3d');
+  if(!container) return;
+  sceneReflect = new THREE.Scene();
+  sceneReflect.background = new THREE.Color(0x0b1220);
+  cameraReflect = new THREE.PerspectiveCamera(50, container.clientWidth/container.clientHeight, 0.1, 1000);
+  cameraReflect.position.set(0, 8, 18);
+  cameraReflect.lookAt(0,0,0);
+  rendererReflect = new THREE.WebGLRenderer({antialias:true});
+  rendererReflect.setSize(container.clientWidth, container.clientHeight);
+  container.appendChild(rendererReflect.domElement);
+
+  // Mirror surface
+  const mirrorGeo = new THREE.PlaneGeometry(20, 10);
+  const mirrorMat = new THREE.MeshBasicMaterial({color:0x475569, side:THREE.DoubleSide});
+  const mirror = new THREE.Mesh(mirrorGeo, mirrorMat);
+  mirror.rotation.x = -Math.PI/2;
+  mirror.position.y = -2;
+  sceneReflect.add(mirror);
+
+  // Normal line
+  const normalGeo = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0,-2,0), new THREE.Vector3(0,8,0)]);
+  const normalMat = new THREE.LineDashedMaterial({color:0x64748b, dashSize:0.5, gapSize:0.3});
+  const normalLine = new THREE.Line(normalGeo, normalMat);
+  normalLine.computeLineDistances();
+  sceneReflect.add(normalLine);
+
+  let angle = 45;
+  const incidentMat = new THREE.LineBasicMaterial({color:0xf87171, linewidth:3});
+  const reflectedMat = new THREE.LineBasicMaterial({color:0x4ade80, linewidth:3});
+  let incidentLine, reflectedLine;
+
+  function updateRays() {
+    if(incidentLine) sceneReflect.remove(incidentLine);
+    if(reflectedLine) sceneReflect.remove(reflectedLine);
+    const rad = angle * Math.PI/180;
+    const len = 10;
+    const incGeo = new THREE.BufferGeometry().setFromPoints([
+      new THREE.Vector3(-len*Math.sin(rad), len*Math.cos(rad)-2, 0),
+      new THREE.Vector3(0,-2,0)
+    ]);
+    const refGeo = new THREE.BufferGeometry().setFromPoints([
+      new THREE.Vector3(0,-2,0),
+      new THREE.Vector3(len*Math.sin(rad), len*Math.cos(rad)-2, 0)
+    ]);
+    incidentLine = new THREE.Line(incGeo, incidentMat);
+    reflectedLine = new THREE.Line(refGeo, reflectedMat);
+    sceneReflect.add(incidentLine);
+    sceneReflect.add(reflectedLine);
+  }
+  updateRays();
+
+  // Listen to slider
+  angleReflect.addEventListener('input', () => {
+    angle = +angleReflect.value;
+    updateRays();
+  });
+
+  function animate() {
+    reflectAni = requestAnimationFrame(animate);
+    rendererReflect.render(sceneReflect, cameraReflect);
+  }
+  animate();
+}
+
+// Refraction 3D
+let sceneRefract, cameraRefract, rendererRefract, refractAni;
+function initRefract3D() {
+  const container = document.getElementById('refract3d');
+  if(!container) return;
+  sceneRefract = new THREE.Scene();
+  sceneRefract.background = new THREE.Color(0x0b1220);
+  cameraRefract = new THREE.PerspectiveCamera(50, container.clientWidth/container.clientHeight, 0.1, 1000);
+  cameraRefract.position.set(0, 5, 20);
+  cameraRefract.lookAt(0,0,0);
+  rendererRefract = new THREE.WebGLRenderer({antialias:true});
+  rendererRefract.setSize(container.clientWidth, container.clientHeight);
+  container.appendChild(rendererRefract.domElement);
+
+  // Interface plane
+  const planeGeo = new THREE.PlaneGeometry(20, 20);
+  const planeMat = new THREE.MeshBasicMaterial({color:0x1e293b, transparent:true, opacity:0.5, side:THREE.DoubleSide});
+  const plane = new THREE.Mesh(planeGeo, planeMat);
+  plane.position.x = 0;
+  plane.rotation.y = Math.PI/2;
+  sceneRefract.add(plane);
+
+  // Normal
+  const normalGeo = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0,-8,0), new THREE.Vector3(0,8,0)]);
+  const normalMat = new THREE.LineDashedMaterial({color:0x64748b, dashSize:0.5, gapSize:0.3});
+  const normalLine = new THREE.Line(normalGeo, normalMat);
+  normalLine.computeLineDistances();
+  sceneRefract.add(normalLine);
+
+  let iAngle = 40, n1v = 1.0, n2v = 1.33;
+  const incMat = new THREE.LineBasicMaterial({color:0xf87171, linewidth:3});
+  const refMat = new THREE.LineBasicMaterial({color:0x60a5fa, linewidth:3});
+  let incLine, refLine;
+
+  function updateRays() {
+    if(incLine) sceneRefract.remove(incLine);
+    if(refLine) sceneRefract.remove(refLine);
+    const iRad = iAngle * Math.PI/180;
+    const len = 10;
+    const incGeo = new THREE.BufferGeometry().setFromPoints([
+      new THREE.Vector3(-len*Math.sin(iRad), len*Math.cos(iRad), 0),
+      new THREE.Vector3(0,0,0)
+    ]);
+    let rRad = Math.asin(Math.min(1, (n1v/n2v)*Math.sin(iRad)));
+    if(n2v<n1v && iRad>Math.asin(n2v/n1v)) rRad = null;
+    if(rRad !== null) {
+      const refGeo = new THREE.BufferGeometry().setFromPoints([
+        new THREE.Vector3(0,0,0),
+        new THREE.Vector3(len*Math.sin(rRad), len*Math.cos(rRad), 0)
+      ]);
+      refLine = new THREE.Line(refGeo, refMat);
+      sceneRefract.add(refLine);
+    }
+    incLine = new THREE.Line(incGeo, incMat);
+    sceneRefract.add(incLine);
+  }
+  updateRays();
+
+  angleI.addEventListener('input', () => { iAngle=+angleI.value; updateRays(); });
+  n1.addEventListener('change', () => { n1v=+n1.value; updateRays(); });
+  n2.addEventListener('change', () => { n2v=+n2.value; updateRays(); });
+
+  function animate() {
+    refractAni = requestAnimationFrame(animate);
+    rendererRefract.render(sceneRefract, cameraRefract);
+  }
+  animate();
+}
+
+// TIR 3D
+let sceneTIR, cameraTIR, rendererTIR, tirAni;
+function initTIR3D() {
+  const container = document.getElementById('tir3d');
+  if(!container) return;
+  sceneTIR = new THREE.Scene();
+  sceneTIR.background = new THREE.Color(0x0b1220);
+  cameraTIR = new THREE.PerspectiveCamera(50, container.clientWidth/container.clientHeight, 0.1, 1000);
+  cameraTIR.position.set(0, 6, 15);
+  cameraTIR.lookAt(0,0,0);
+  rendererTIR = new THREE.WebGLRenderer({antialias:true});
+  rendererTIR.setSize(container.clientWidth, container.clientHeight);
+  container.appendChild(rendererTIR.domElement);
+
+  // Interface
+  const planeGeo = new THREE.PlaneGeometry(16, 12);
+  const planeMat = new THREE.MeshBasicMaterial({color:0x1e293b, transparent:true, opacity:0.4, side:THREE.DoubleSide});
+  const plane = new THREE.Mesh(planeGeo, planeMat);
+  plane.rotation.x = -Math.PI/2;
+  plane.position.y = -2;
+  sceneTIR.add(plane);
+
+  // Normal
+  const normalGeo = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0,-2,0), new THREE.Vector3(0,8,0)]);
+  const normalMat = new THREE.LineDashedMaterial({color:0x64748b, dashSize:0.5, gapSize:0.3});
+  const normalLine = new THREE.Line(normalGeo, normalMat);
+  normalLine.computeLineDistances();
+  sceneTIR.add(normalLine);
+
+  let iAngle = 50, n = 1.5;
+  const incMat = new THREE.LineBasicMaterial({color:0xf87171, linewidth:3});
+  const refMat = new THREE.LineBasicMaterial({color:0x60a5fa, linewidth:3});
+  const tirMat = new THREE.LineBasicMaterial({color:0x4ade80, linewidth:3});
+  let incLine, refLine, tirLine;
+
+  function updateRays() {
+    if(incLine) sceneTIR.remove(incLine);
+    if(refLine) sceneTIR.remove(refLine);
+    if(tirLine) sceneTIR.remove(tirLine);
+    const iRad = iAngle * Math.PI/180;
+    const cRad = Math.asin(1/n);
+    const len = 8;
+    const incGeo = new THREE.BufferGeometry().setFromPoints([
+      new THREE.Vector3(-len*Math.sin(iRad), len*Math.cos(iRad)-2, 0),
+      new THREE.Vector3(0,-2,0)
+    ]);
+    incLine = new THREE.Line(incGeo, incMat);
+    sceneTIR.add(incLine);
+    if(iRad > cRad) {
+      // TIR
+      const tirGeo = new THREE.BufferGeometry().setFromPoints([
+        new THREE.Vector3(0,-2,0),
+        new THREE.Vector3(len*Math.sin(iRad), len*Math.cos(iRad)-2, 0)
+      ]);
+      tirLine = new THREE.Line(tirGeo, tirMat);
+      sceneTIR.add(tirLine);
+    } else {
+      const sinR = n*Math.sin(iRad);
+      const rRad = Math.asin(Math.min(1, sinR));
+      const refGeo = new THREE.BufferGeometry().setFromPoints([
+        new THREE.Vector3(0,-2,0),
+        new THREE.Vector3(len*Math.sin(rRad), len*Math.cos(rRad)-2, 0)
+      ]);
+      refLine = new THREE.Line(refGeo, refMat);
+      sceneTIR.add(refLine);
+    }
+  }
+  updateRays();
+
+  angleTIR.addEventListener('input', () => { iAngle=+angleTIR.value; updateRays(); });
+  tirN.addEventListener('change', () => { n=+tirN.value; updateRays(); });
+
+  function animate() {
+    tirAni = requestAnimationFrame(animate);
+    rendererTIR.render(sceneTIR, cameraTIR);
+  }
+  animate();
+}
+
+// Practical Blocks 3D
+let scenePractical, cameraPractical, rendererPractical, practicalAni;
+function initPractical3D() {
+  const container = document.getElementById('practical3d');
+  if(!container) return;
+  scenePractical = new THREE.Scene();
+  scenePractical.background = new THREE.Color(0x0b1220);
+  cameraPractical = new THREE.PerspectiveCamera(50, container.clientWidth/container.clientHeight, 0.1, 1000);
+  cameraPractical.position.set(0, 8, 20);
+  cameraPractical.lookAt(0,0,0);
+  rendererPractical = new THREE.WebGLRenderer({antialias:true});
+  rendererPractical.setSize(container.clientWidth, container.clientHeight);
+  container.appendChild(rendererPractical.domElement);
+
+  const glassMat = new THREE.MeshPhysicalMaterial({
+    color:0x38bdf8, transparent:true, opacity:0.3, roughness:0.1, metalness:0.1,
+    transmission:0.9, thickness:1.5
+  });
+  const edgeMat = new THREE.LineBasicMaterial({color:0x60a5fa});
+  let block;
+
+  function updateBlock() {
+    if(block) scenePractical.remove(block);
+    if(pracShape === 'rect') {
+      const geo = new THREE.BoxGeometry(6, 4, 3);
+      block = new THREE.Mesh(geo, glassMat);
+      const edges = new THREE.EdgesGeometry(geo);
+      const line = new THREE.LineSegments(edges, edgeMat);
+      block.add(line);
+    } else if(pracShape === 'semi') {
+      const geo = new THREE.CylinderGeometry(3, 3, 2, 32, 1, false, Math.PI, Math.PI);
+      block = new THREE.Mesh(geo, glassMat);
+      block.rotation.z = Math.PI/2;
+      const edges = new THREE.EdgesGeometry(geo);
+      const line = new THREE.LineSegments(edges, edgeMat);
+      block.add(line);
+    } else {
+      const shape = new THREE.Shape();
+      shape.moveTo(0, 2.5);
+      shape.lineTo(-2.5, -2);
+      shape.lineTo(2.5, -2);
+      shape.closePath();
+      const geo = new THREE.ExtrudeGeometry(shape, {depth:2, bevelEnabled:false});
+      block = new THREE.Mesh(geo, glassMat);
+      const edges = new THREE.EdgesGeometry(geo);
+      const line = new THREE.LineSegments(edges, edgeMat);
+      block.add(line);
+    }
+    scenePractical.add(block);
+  }
+  updateBlock();
+
+  // Laser ray
+  const rayMat = new THREE.LineBasicMaterial({color:0xf87171, linewidth:3});
+  let rayLine;
+  function updateRay() {
+    if(rayLine) scenePractical.remove(rayLine);
+    const iAngle = +angleLaser.value;
+    const iRad = iAngle * Math.PI/180;
+    const len = 12;
+    const rayGeo = new THREE.BufferGeometry().setFromPoints([
+      new THREE.Vector3(-len*Math.cos(iRad), -len*Math.sin(iRad), 0),
+      new THREE.Vector3(0,0,0)
+    ]);
+    rayLine = new THREE.Line(rayGeo, rayMat);
+    scenePractical.add(rayLine);
+  }
+  updateRay();
+
+  document.querySelectorAll('.prism-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      setTimeout(() => { updateBlock(); updateRay(); }, 50);
+    });
+  });
+  angleLaser.addEventListener('input', updateRay);
+
+  function animate() {
+    practicalAni = requestAnimationFrame(animate);
+    rendererPractical.render(scenePractical, cameraPractical);
+  }
+  animate();
+}
+
+// Initialize all 3D views when tab switches
+const originalTabClick = document.querySelectorAll('.tab-btn');
+originalTabClick.forEach(btn => {
+  btn.addEventListener('click', () => {
+    const tab = btn.dataset.tab;
+    setTimeout(() => {
+      if(tab==='nature' && !sceneNature) initNature3D();
+      if(tab==='reflection' && !sceneReflect) initReflect3D();
+      if(tab==='refraction' && !sceneRefract) initRefract3D();
+      if(tab==='tir' && !sceneTIR) initTIR3D();
+      if(tab==='practical' && !scenePractical) initPractical3D();
+    }, 100);
+  });
+});
+
+// Init first tab 3D
+setTimeout(() => initNature3D(), 500);
 </script>
 </body>
 </html>
