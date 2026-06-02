@@ -763,20 +763,32 @@ function showView(prefix, mode) {
   const btns = document.getElementById(prefix+'Toggle').querySelectorAll('button');
   btns[0].classList.toggle('active', mode==='2d');
   btns[1].classList.toggle('active', mode==='3d');
+  // Re-init 3D if switching to 3D and not initialized yet
+  if(mode==='3d') {
+    setTimeout(() => {
+      if(prefix==='nature' && !sceneNature) initNature3D();
+      if(prefix==='reflect' && !sceneReflect) initReflect3D();
+      if(prefix==='refract' && !sceneRefract) initRefract3D();
+      if(prefix==='tir' && !sceneTIR) initTIR3D();
+      if(prefix==='practical' && !scenePractical) initPractical3D();
+    }, 50);
+  }
 }
 
 // Nature of Light 3D - EM Wave
 let sceneNature, cameraNature, rendererNature, natureAni;
 function initNature3D() {
   const container = document.getElementById('nature3d');
-  if(!container) return;
+  if(!container || sceneNature) return;
+  const w = container.clientWidth || container.offsetWidth || 900;
+  const h = container.clientHeight || container.offsetHeight || 340;
   sceneNature = new THREE.Scene();
   sceneNature.background = new THREE.Color(0x0b1220);
-  cameraNature = new THREE.PerspectiveCamera(50, container.clientWidth/container.clientHeight, 0.1, 1000);
+  cameraNature = new THREE.PerspectiveCamera(50, w/h, 0.1, 1000);
   cameraNature.position.set(0, 5, 20);
   cameraNature.lookAt(0,0,0);
   rendererNature = new THREE.WebGLRenderer({antialias:true});
-  rendererNature.setSize(container.clientWidth, container.clientHeight);
+  rendererNature.setSize(w, h);
   container.appendChild(rendererNature.domElement);
 
   const pointsE = [], pointsB = [];
@@ -832,14 +844,16 @@ function initNature3D() {
 let sceneReflect, cameraReflect, rendererReflect, reflectAni;
 function initReflect3D() {
   const container = document.getElementById('reflect3d');
-  if(!container) return;
+  if(!container || sceneReflect) return;
+  const w = container.clientWidth || container.offsetWidth || 900;
+  const h = container.clientHeight || container.offsetHeight || 340;
   sceneReflect = new THREE.Scene();
   sceneReflect.background = new THREE.Color(0x0b1220);
-  cameraReflect = new THREE.PerspectiveCamera(50, container.clientWidth/container.clientHeight, 0.1, 1000);
+  cameraReflect = new THREE.PerspectiveCamera(50, w/h, 0.1, 1000);
   cameraReflect.position.set(0, 8, 18);
   cameraReflect.lookAt(0,0,0);
   rendererReflect = new THREE.WebGLRenderer({antialias:true});
-  rendererReflect.setSize(container.clientWidth, container.clientHeight);
+  rendererReflect.setSize(w, h);
   container.appendChild(rendererReflect.domElement);
 
   // Mirror surface
@@ -899,14 +913,16 @@ function initReflect3D() {
 let sceneRefract, cameraRefract, rendererRefract, refractAni;
 function initRefract3D() {
   const container = document.getElementById('refract3d');
-  if(!container) return;
+  if(!container || sceneRefract) return;
+  const w = container.clientWidth || container.offsetWidth || 900;
+  const h = container.clientHeight || container.offsetHeight || 340;
   sceneRefract = new THREE.Scene();
   sceneRefract.background = new THREE.Color(0x0b1220);
-  cameraRefract = new THREE.PerspectiveCamera(50, container.clientWidth/container.clientHeight, 0.1, 1000);
+  cameraRefract = new THREE.PerspectiveCamera(50, w/h, 0.1, 1000);
   cameraRefract.position.set(0, 5, 20);
   cameraRefract.lookAt(0,0,0);
   rendererRefract = new THREE.WebGLRenderer({antialias:true});
-  rendererRefract.setSize(container.clientWidth, container.clientHeight);
+  rendererRefract.setSize(w, h);
   container.appendChild(rendererRefract.domElement);
 
   // Interface plane
@@ -968,14 +984,16 @@ function initRefract3D() {
 let sceneTIR, cameraTIR, rendererTIR, tirAni;
 function initTIR3D() {
   const container = document.getElementById('tir3d');
-  if(!container) return;
+  if(!container || sceneTIR) return;
+  const w = container.clientWidth || container.offsetWidth || 440;
+  const h = container.clientHeight || container.offsetHeight || 340;
   sceneTIR = new THREE.Scene();
   sceneTIR.background = new THREE.Color(0x0b1220);
-  cameraTIR = new THREE.PerspectiveCamera(50, container.clientWidth/container.clientHeight, 0.1, 1000);
+  cameraTIR = new THREE.PerspectiveCamera(50, w/h, 0.1, 1000);
   cameraTIR.position.set(0, 6, 15);
   cameraTIR.lookAt(0,0,0);
   rendererTIR = new THREE.WebGLRenderer({antialias:true});
-  rendererTIR.setSize(container.clientWidth, container.clientHeight);
+  rendererTIR.setSize(w, h);
   container.appendChild(rendererTIR.domElement);
 
   // Interface
@@ -1047,14 +1065,16 @@ function initTIR3D() {
 let scenePractical, cameraPractical, rendererPractical, practicalAni;
 function initPractical3D() {
   const container = document.getElementById('practical3d');
-  if(!container) return;
+  if(!container || scenePractical) return;
+  const w = container.clientWidth || container.offsetWidth || 900;
+  const h = container.clientHeight || container.offsetHeight || 340;
   scenePractical = new THREE.Scene();
   scenePractical.background = new THREE.Color(0x0b1220);
-  cameraPractical = new THREE.PerspectiveCamera(50, container.clientWidth/container.clientHeight, 0.1, 1000);
+  cameraPractical = new THREE.PerspectiveCamera(50, w/h, 0.1, 1000);
   cameraPractical.position.set(0, 8, 20);
   cameraPractical.lookAt(0,0,0);
   rendererPractical = new THREE.WebGLRenderer({antialias:true});
-  rendererPractical.setSize(container.clientWidth, container.clientHeight);
+  rendererPractical.setSize(w, h);
   container.appendChild(rendererPractical.domElement);
 
   const glassMat = new THREE.MeshPhysicalMaterial({
@@ -1139,8 +1159,8 @@ originalTabClick.forEach(btn => {
   });
 });
 
-// Init first tab 3D
-setTimeout(() => initNature3D(), 500);
+// Init first tab 3D when user switches to 3D
+// (do not auto-init since container is display:none)
 </script>
 </body>
 </html>
