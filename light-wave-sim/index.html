@@ -1080,13 +1080,11 @@ function initPractical3D() {
       const line = new THREE.LineSegments(edges, edgeMat);
       block.add(line);
     } else {
-      const shape = new THREE.Shape();
-      shape.moveTo(0, 2.5);
-      shape.lineTo(-2.5, -2);
-      shape.lineTo(2.5, -2);
-      shape.closePath();
-      const geo = new THREE.ExtrudeGeometry(shape, {depth:2, bevelEnabled:false});
+      // Triangular prism - use ConeGeometry for a clean triangular prism
+      const geo = new THREE.CylinderGeometry(3, 3, 2, 3, 1);
       block = new THREE.Mesh(geo, glassMat);
+      block.rotation.x = Math.PI/2;
+      block.rotation.z = Math.PI;
       const edges = new THREE.EdgesGeometry(geo);
       const line = new THREE.LineSegments(edges, edgeMat);
       block.add(line);
