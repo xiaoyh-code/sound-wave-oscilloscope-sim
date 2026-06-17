@@ -1,0 +1,1734 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>F4 Physics Study Companion</title>
+    
+    <!-- Tailwind CSS for modern responsive UI styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        physics: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            600: '#0284c7',
+                            700: '#0369a1',
+                            800: '#075985',
+                            900: '#0c4a6e',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- KaTeX for robust LaTeX-style formula typesetting -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body, {
+        delimiters: [
+            {left: '$$', right: '$$', display: true},
+            {left: '$', right: '$', display: false}
+        ]
+    });"></script>
+
+    <!-- Google Fonts for premium typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+        .monospace {
+            font-family: 'JetBrains Mono', monospace;
+        }
+        /* Custom scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 3px;
+        }
+        .dark ::-webkit-scrollbar-thumb {
+            background: #475569;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 transition-colors duration-200 h-full overflow-hidden flex flex-col">
+
+    <!-- Top Navigation Header -->
+    <header class="bg-white dark:bg-slate-950 border-b border-slate-200 dark:border-slate-800 px-6 py-4 flex items-center justify-between shrink-0">
+        <div class="flex items-center space-x-3">
+            <div class="p-2 bg-physics-600 rounded-lg text-white">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                </svg>
+            </div>
+            <div>
+                <h1 class="text-xl font-extrabold tracking-tight">F4 Physics Companion</h1>
+                <p class="text-xs text-slate-500 dark:text-slate-400">Chapters 10–13 & 18–19 Complete Syllabus Revision</p>
+            </div>
+        </div>
+        
+        <div class="flex items-center space-x-4">
+            <!-- Progress Circle Indicator -->
+            <div class="flex items-center space-x-2 bg-slate-100 dark:bg-slate-800 px-3 py-1.5 rounded-full">
+                <span class="text-xs font-semibold text-slate-500 dark:text-slate-400">Syllabus Progress:</span>
+                <span id="overall-progress" class="text-sm font-extrabold text-physics-600">0%</span>
+            </div>
+            
+            <!-- Dark Mode Toggle Button -->
+            <button id="theme-toggle" class="p-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition" aria-label="Toggle Dark Mode">
+                <svg id="theme-toggle-dark-icon" class="hidden w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path></svg>
+                <svg id="theme-toggle-light-icon" class="hidden w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464l-.707-.707a1 1 0 00-1.414 1.414l.707.707a1 1 0 001.414-1.414zm2.12 10.607a1 1 0 010-1.414l.706-.707a1 1 0 111.414 1.414l-.707.707a1 1 0 01-1.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1z" clip-rule="evenodd" fill-rule="evenodd"></path></svg>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Content Grid -->
+    <div class="flex-1 flex overflow-hidden">
+        <!-- Sidebar Navigation -->
+        <aside class="w-64 bg-white dark:bg-slate-950 border-r border-slate-200 dark:border-slate-800 flex flex-col shrink-0 overflow-y-auto hidden md:flex">
+            <nav class="flex-1 p-4 space-y-1">
+                <p class="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider px-3 mb-2">Welcome Dashboard</p>
+                <button onclick="switchTab('dashboard')" id="btn-tab-dashboard" class="tab-btn w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-semibold transition bg-physics-100 dark:bg-slate-800 text-physics-700 dark:text-white">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
+                    </svg>
+                    <span>Overview & Dashboard</span>
+                </button>
+
+                <p class="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider px-3 pt-4 mb-2">Part I: Waves & Light</p>
+                
+                <button onclick="switchTab('waves')" id="btn-tab-waves" class="tab-btn w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium transition hover:bg-slate-100 dark:hover:bg-slate-900 text-slate-600 dark:text-slate-300">
+                    <div class="w-2.5 h-2.5 bg-cyan-500 rounded-full"></div>
+                    <span class="flex-1 text-left">Ch 10: Wave Basics</span>
+                </button>
+                
+                <button onclick="switchTab('emspectrum')" id="btn-tab-emspectrum" class="tab-btn w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium transition hover:bg-slate-100 dark:hover:bg-slate-900 text-slate-600 dark:text-slate-300">
+                    <div class="w-2.5 h-2.5 bg-indigo-500 rounded-full"></div>
+                    <span class="flex-1 text-left">Ch 11: EM Spectrum</span>
+                </button>
+
+                <button onclick="switchTab('light')" id="btn-tab-light" class="tab-btn w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium transition hover:bg-slate-100 dark:hover:bg-slate-900 text-slate-600 dark:text-slate-300">
+                    <div class="w-2.5 h-2.5 bg-amber-500 rounded-full"></div>
+                    <span class="flex-1 text-left">Ch 12: Light & TIR</span>
+                </button>
+
+                <button onclick="switchTab('sound')" id="btn-tab-sound" class="tab-btn w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium transition hover:bg-slate-100 dark:hover:bg-slate-900 text-slate-600 dark:text-slate-300">
+                    <div class="w-2.5 h-2.5 bg-emerald-500 rounded-full"></div>
+                    <span class="flex-1 text-left">Ch 13: Sound Waves</span>
+                </button>
+
+                <p class="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider px-3 pt-4 mb-2">Part II: Matter & Thermal</p>
+
+                <button onclick="switchTab('density')" id="btn-tab-density" class="tab-btn w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium transition hover:bg-slate-100 dark:hover:bg-slate-900 text-slate-600 dark:text-slate-300">
+                    <div class="w-2.5 h-2.5 bg-pink-500 rounded-full"></div>
+                    <span class="flex-1 text-left">Ch 18: Pressure & Fluids</span>
+                </button>
+
+                <button onclick="switchTab('thermal')" id="btn-tab-thermal" class="tab-btn w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium transition hover:bg-slate-100 dark:hover:bg-slate-900 text-slate-600 dark:text-slate-300">
+                    <div class="w-2.5 h-2.5 bg-red-500 rounded-full"></div>
+                    <span class="flex-1 text-left">Ch 19: Thermal & Gas</span>
+                </button>
+
+                <p class="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider px-3 pt-4 mb-2">Resources</p>
+
+                <button onclick="switchTab('practice')" id="btn-tab-practice" class="tab-btn w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium transition hover:bg-slate-100 dark:hover:bg-slate-900 text-slate-600 dark:text-slate-300">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-rose-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span>Practice & Mock Exams</span>
+                </button>
+            </nav>
+        </aside>
+
+        <!-- Left study panel (takes 66% width) -->
+        <main class="flex-1 overflow-y-auto p-6 space-y-6" id="study-panel">
+            
+            <!-- Dynamic Mobile Navigation Banner -->
+            <div class="md:hidden flex items-center justify-between bg-slate-100 dark:bg-slate-800 p-3 rounded-xl mb-4">
+                <span class="text-xs font-bold text-slate-600 dark:text-slate-300 uppercase">Choose Topic:</span>
+                <select id="mobile-nav" onchange="switchTab(this.value)" class="bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-md text-sm py-1 px-2">
+                    <option value="dashboard">Overview Dashboard</option>
+                    <option value="waves">Ch 10: Wave Basics</option>
+                    <option value="emspectrum">Ch 11: EM Spectrum</option>
+                    <option value="light">Ch 12: Light & TIR</option>
+                    <option value="sound">Ch 13: Sound Waves</option>
+                    <option value="density">Ch 18: Pressure & Fluids</option>
+                    <option value="thermal">Ch 19: Thermal & Gas</option>
+                    <option value="practice">Practice & Checklists</option>
+                </select>
+            </div>
+
+            <!-- ==========================================
+                 TAB CONTENT: DASHBOARD OVERVIEW
+                 ========================================== -->
+            <div id="content-dashboard" class="tab-content space-y-6">
+                <div class="p-6 bg-gradient-to-r from-physics-700 to-indigo-900 rounded-2xl text-white shadow-lg relative overflow-hidden">
+                    <div class="relative z-10">
+                        <span class="px-3 py-1 bg-white/20 text-xs font-bold rounded-full uppercase">Syllabus Overview</span>
+                        <h2 class="text-3xl font-black mt-3">Ready to ace F4 Physics?</h2>
+                        <p class="mt-2 text-physics-100 max-w-xl">
+                            We've structured your exact syllabus (Chapters 10–13 and 18–19) into a fully interactive digital environment. Study the revision guides, operate dynamic lab simulations, and self-test your mechanics right here.
+                        </p>
+                        <div class="mt-6 flex flex-wrap gap-3">
+                            <button onclick="switchTab('waves')" class="bg-white text-physics-900 hover:bg-physics-50 px-4 py-2 rounded-lg text-sm font-extrabold shadow-md transition">Start Waves Revison</button>
+                            <button onclick="switchTab('density')" class="bg-physics-600/30 border border-white/30 text-white hover:bg-physics-600/50 px-4 py-2 rounded-lg text-sm font-semibold transition">Jump to Fluid Mechanics</button>
+                        </div>
+                    </div>
+                    <!-- Vector background element -->
+                    <div class="absolute right-0 bottom-0 top-0 w-1/3 opacity-15 flex items-center justify-center">
+                        <svg class="w-full h-full text-white" viewBox="0 0 100 100" fill="currentColor">
+                            <path d="M50,10 C27.9,10 10,27.9 10,50 C10,72.1 27.9,90 50,90 C72.1,90 90,72.1 90,50 C90,27.9 72.1,10 50,10 Z M50,82 C32.4,82 18,67.6 18,50 C18,32.4 32.4,18 50,18 C67.6,18 82,32.4 82,50 C82,67.6 67.6,82 50,82 Z"/>
+                            <circle cx="50" cy="50" r="10"/>
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- Syllabus Chapter Selection Board -->
+                <div>
+                    <h3 class="text-lg font-bold mb-4">Syllabus Modules</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <!-- Card: Waves -->
+                        <div class="p-5 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl hover:shadow-md transition flex flex-col justify-between">
+                            <div>
+                                <div class="flex items-center justify-between mb-3">
+                                    <span class="text-xs font-bold text-cyan-600 bg-cyan-50 dark:bg-cyan-950/30 px-2 py-1 rounded">Ch 10 - 13</span>
+                                    <span class="text-xs text-slate-400">4 Modules</span>
+                                </div>
+                                <h4 class="text-base font-bold text-slate-900 dark:text-white">Properties of Waves & Optical Physics</h4>
+                                <p class="text-xs text-slate-500 dark:text-slate-400 mt-2">
+                                    Covers transverse vs. longitudinal waves, refractive indexes, the electromagnetic spectrum properties/safety, sound frequency traces, and sonar mapping.
+                                </p>
+                            </div>
+                            <button onclick="switchTab('waves')" class="mt-4 text-xs font-extrabold text-physics-600 dark:text-physics-400 flex items-center hover:underline">
+                                Go to Module &rarr;
+                            </button>
+                        </div>
+
+                        <!-- Card: Fluids and Thermal -->
+                        <div class="p-5 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl hover:shadow-md transition flex flex-col justify-between">
+                            <div>
+                                <div class="flex items-center justify-between mb-3">
+                                    <span class="text-xs font-bold text-pink-600 bg-pink-50 dark:bg-pink-950/30 px-2 py-1 rounded">Ch 18 - 19</span>
+                                    <span class="text-xs text-slate-400">3 Modules</span>
+                                </div>
+                                <h4 class="text-base font-bold text-slate-900 dark:text-white">Fluid Mechanics & Thermal Properties</h4>
+                                <p class="text-xs text-slate-500 dark:text-slate-400 mt-2">
+                                    Explore density and pressure at depth, hydraulic piston calculations, latent heat curves, ideal gas laws, and particle-level states of matter.
+                                </p>
+                            </div>
+                            <button onclick="switchTab('density')" class="mt-4 text-xs font-extrabold text-physics-600 dark:text-physics-400 flex items-center hover:underline">
+                                Go to Module &rarr;
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Custom Dashboard Tip Box -->
+                <div class="bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900/50 p-4 rounded-xl flex items-start space-x-3">
+                    <span class="text-xl">💡</span>
+                    <div>
+                        <h4 class="text-xs font-extrabold text-amber-800 dark:text-amber-400 uppercase">Interactive Study Tip</h4>
+                        <p class="text-xs text-amber-900/80 dark:text-amber-300 mt-1 leading-relaxed">
+                            Click on the <strong>My Study Notebook</strong> drawer on the right side of your desktop screen to jot down key insights while exploring! You can also toggle <strong>Flashcards</strong> or check off topics as you finish learning them.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ==========================================
+                 TAB CONTENT: CH 10 (WAVE BASICS)
+                 ========================================== -->
+            <div id="content-waves" class="tab-content space-y-6 hidden">
+                <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
+                    <div>
+                        <span class="text-xs font-bold text-cyan-600">Chapter 10 Revision</span>
+                        <h2 class="text-2xl font-black">Properties of Waves</h2>
+                    </div>
+                    <label class="flex items-center space-x-2 text-xs font-semibold text-slate-500 cursor-pointer">
+                        <input type="checkbox" data-checkbox="ch10" class="rounded text-physics-600 focus:ring-physics-500">
+                        <span>Mark Completed</span>
+                    </label>
+                </div>
+
+                <!-- Wave Simulator Tool -->
+                <div class="bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl p-5 shadow-sm space-y-4">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-sm font-extrabold text-slate-900 dark:text-white uppercase tracking-wider">🔬 Lab Simulation: Interactive Wave Generator</h3>
+                        <span class="text-xs font-semibold px-2 py-1 bg-cyan-100 dark:bg-cyan-950 text-cyan-800 dark:text-cyan-300 rounded">Wave Equation: $v = f \lambda$</span>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <!-- Canvas wave visualization -->
+                        <div class="lg:col-span-2 bg-slate-100 dark:bg-slate-900 rounded-xl p-2 relative h-48 flex flex-col justify-between">
+                            <canvas id="wave-canvas" class="w-full h-full rounded bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800"></canvas>
+                        </div>
+                        
+                        <!-- Real-time Controls and Values -->
+                        <div class="space-y-4 bg-slate-50 dark:bg-slate-900/50 p-4 rounded-xl border border-slate-200 dark:border-slate-800/50 flex flex-col justify-center">
+                            <div>
+                                <label class="text-xs font-bold text-slate-500 flex justify-between">
+                                    <span>Frequency ($f$):</span>
+                                    <span class="text-physics-600" id="val-wave-freq">2.0 Hz</span>
+                                </label>
+                                <input type="range" id="slider-wave-freq" min="0.5" max="5" step="0.1" value="2" class="w-full h-1.5 bg-slate-300 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer">
+                            </div>
+                            <div>
+                                <label class="text-xs font-bold text-slate-500 flex justify-between">
+                                    <span>Wavelength ($\lambda$):</span>
+                                    <span class="text-physics-600" id="val-wave-lambda">40 m</span>
+                                </label>
+                                <input type="range" id="slider-wave-lambda" min="15" max="80" step="1" value="40" class="w-full h-1.5 bg-slate-300 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer">
+                            </div>
+                            <div class="pt-2 border-t border-slate-200 dark:border-slate-800">
+                                <div class="text-center text-xs text-slate-400">Calculated Wave Velocity ($v$):</div>
+                                <div class="text-center text-2xl font-black text-physics-600 dark:text-physics-400" id="val-wave-velocity">80.0 m/s</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Theory Tables and Notes -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl p-5 shadow-sm">
+                        <h3 class="text-sm font-extrabold uppercase tracking-wider mb-3">Transverse vs. Longitudinal</h3>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-xs text-left border-collapse">
+                                <thead>
+                                    <tr class="border-b border-slate-200 dark:border-slate-800">
+                                        <th class="pb-2 font-bold text-slate-400">Feature</th>
+                                        <th class="pb-2 font-bold text-cyan-600">Transverse</th>
+                                        <th class="pb-2 font-bold text-indigo-600">Longitudinal</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-100 dark:divide-slate-900">
+                                    <tr>
+                                        <td class="py-2 font-semibold">Oscillation</td>
+                                        <td class="py-2">Perpendicular to travel</td>
+                                        <td class="py-2">Parallel to travel</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="py-2 font-semibold">Structure</td>
+                                        <td class="py-2">Crests & Troughs</td>
+                                        <td class="py-2">Compressions & Rarefactions</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="py-2 font-semibold">Examples</td>
+                                        <td class="py-2">EM waves, water surface</td>
+                                        <td class="py-2">Sound waves</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="py-2 font-semibold">Vacuum?</td>
+                                        <td class="py-2">No medium needed (EM)</td>
+                                        <td class="py-2">Needs material medium</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl p-5 shadow-sm space-y-3">
+                        <h3 class="text-sm font-extrabold uppercase tracking-wider">Key Wave Vocabulary</h3>
+                        <div class="space-y-2 text-xs">
+                            <p><strong>Amplitude ($A$):</strong> Max displacement from the equilibrium position. [unit: $\text{m}$]</p>
+                            <p><strong>Wavelength ($\lambda$):</strong> Distance between two adjacent points in phase. [unit: $\text{m}$]</p>
+                            <p><strong>Frequency ($f$):</strong> Complete oscillations per second. [unit: $\text{Hz}$]</p>
+                            <p><strong>Period ($T$):</strong> Time taken for one complete wave. [unit: $\text{s}$]</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Graphs Explanation Section -->
+                <div class="bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl p-5 shadow-sm space-y-4">
+                    <h3 class="text-sm font-extrabold uppercase tracking-wider">How to Read Wave Graphs</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+                        <div class="bg-slate-50 dark:bg-slate-900/50 p-4 rounded-lg border border-slate-100 dark:border-slate-800">
+                            <h4 class="font-bold text-physics-600 mb-1">Displacement-Time Graph</h4>
+                            <p class="leading-relaxed">
+                                The horizontal axis is time. Read <strong>amplitude</strong> from peak heights and <strong>period ($T$)</strong> from peak-to-peak distance. Frequency is calculated via $f = 1/T$.
+                            </p>
+                        </div>
+                        <div class="bg-slate-50 dark:bg-slate-900/50 p-4 rounded-lg border border-slate-100 dark:border-slate-800">
+                            <h4 class="font-bold text-physics-600 mb-1">Displacement-Distance Graph</h4>
+                            <p class="leading-relaxed">
+                                The horizontal axis is spatial distance. Read <strong>amplitude</strong> vertically and <strong>wavelength ($\lambda$)</strong> directly from peak-to-peak distance.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Dynamic Wave Practice Q1 Card -->
+                <div class="border-2 border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 rounded-xl p-5 space-y-3">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-black tracking-widest text-physics-600 uppercase">Exam Question 1 [7 Marks]</span>
+                        <span class="text-xs text-slate-400 font-bold">Recommended: 10 mins</span>
+                    </div>
+                    <p class="text-sm font-bold text-slate-900 dark:text-white leading-relaxed">
+                        The displacement-time graph of a wave is observed on an oscilloscope. One complete cycle takes $5.0 \text{ ms}$. The maximum displacement from equilibrium is $3.2 \text{ cm}$.
+                    </p>
+                    <div class="space-y-2 text-xs list-decimal pl-4">
+                        <p><strong>(a)</strong> State what is meant by the amplitude of a wave. [1]</p>
+                        <p><strong>(b)</strong> State the period of this wave in seconds. [1]</p>
+                        <p><strong>(c)</strong> Calculate the frequency of the wave. [2]</p>
+                        <p><strong>(d)</strong> The wave travels at $24 \text{ m/s}$. Calculate its wavelength. [2]</p>
+                        <p><strong>(e)</strong> State whether sound is a transverse or longitudinal wave. [1]</p>
+                    </div>
+                    <div class="pt-3">
+                        <button onclick="toggleAnswer('q1-ans')" class="bg-slate-100 dark:bg-slate-900 hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 px-4 py-2 rounded-lg text-xs font-bold transition">Reveal Mark Scheme & Solutions</button>
+                    </div>
+                    <div id="q1-ans" class="hidden p-4 bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-100 dark:border-emerald-900/50 text-xs rounded-lg space-y-2">
+                        <p><strong>(a)</strong> Maximum displacement from the equilibrium/rest position. <span class="text-emerald-600 font-bold">[1 mark]</span></p>
+                        <p><strong>(b)</strong> $T = 5.0 \text{ ms} = 0.005 \text{ s}$. <span class="text-emerald-600 font-bold">[1 mark]</span></p>
+                        <p><strong>(c)</strong> $f = 1/T = 1 / 0.005 = 200 \text{ Hz}$. <span class="text-emerald-600 font-bold">[2 marks - 1 for formula, 1 for answer]</span></p>
+                        <p><strong>(d)</strong> $\lambda = v/f = 24 / 200 = 0.12 \text{ m}$. <span class="text-emerald-600 font-bold">[2 marks - 1 for substitution, 1 for correct answer]</span></p>
+                        <p><strong>(e)</strong> Longitudinal wave. <span class="text-emerald-600 font-bold">[1 mark]</span></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ==========================================
+                 TAB CONTENT: CH 11 (EM SPECTRUM)
+                 ========================================== -->
+            <div id="content-emspectrum" class="tab-content space-y-6 hidden">
+                <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
+                    <div>
+                        <span class="text-xs font-bold text-indigo-600">Chapter 11 Revision</span>
+                        <h2 class="text-2xl font-black">The Electromagnetic Spectrum</h2>
+                    </div>
+                    <label class="flex items-center space-x-2 text-xs font-semibold text-slate-500 cursor-pointer">
+                        <input type="checkbox" data-checkbox="ch11" class="rounded text-physics-600 focus:ring-physics-500">
+                        <span>Mark Completed</span>
+                    </label>
+                </div>
+
+                <!-- Custom EM Spectrum Explorer Component -->
+                <div class="bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl p-5 shadow-sm space-y-4">
+                    <h3 class="text-sm font-extrabold uppercase tracking-wider">🔬 Interactive EM Spectrum Lab</h3>
+                    <p class="text-xs text-slate-500 dark:text-slate-400">Click on any band of the spectrum below to see its exact applications, safety profiles, and wave behaviors.</p>
+                    
+                    <!-- SVG Visual Spectrum Bar -->
+                    <div class="grid grid-cols-7 gap-1 h-14 rounded-lg overflow-hidden border border-slate-200 dark:border-slate-800">
+                        <button onclick="inspectEM('radio')" class="bg-gradient-to-r from-red-600 to-orange-500 text-white font-black text-xxs flex items-center justify-center hover:opacity-90 active:scale-95 transition">RADIO</button>
+                        <button onclick="inspectEM('micro')" class="bg-gradient-to-r from-orange-500 to-yellow-500 text-white font-black text-xxs flex items-center justify-center hover:opacity-90 active:scale-95 transition">MICRO</button>
+                        <button onclick="inspectEM('ir')" class="bg-gradient-to-r from-yellow-500 to-green-500 text-white font-black text-xxs flex items-center justify-center hover:opacity-90 active:scale-95 transition">INFRARED</button>
+                        <button onclick="inspectEM('visible')" class="bg-gradient-to-r from-green-500 to-blue-500 text-white font-black text-xxs flex items-center justify-center hover:opacity-90 active:scale-95 transition">VISIBLE</button>
+                        <button onclick="inspectEM('uv')" class="bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-black text-xxs flex items-center justify-center hover:opacity-90 active:scale-95 transition">UV</button>
+                        <button onclick="inspectEM('xray')" class="bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-black text-xxs flex items-center justify-center hover:opacity-90 active:scale-95 transition">X-RAY</button>
+                        <button onclick="inspectEM('gamma')" class="bg-gradient-to-r from-purple-600 to-pink-700 text-white font-black text-xxs flex items-center justify-center hover:opacity-90 active:scale-95 transition">GAMMA</button>
+                    </div>
+
+                    <!-- Trend Indicators -->
+                    <div class="flex justify-between text-xxs font-extrabold text-slate-400 dark:text-slate-500 px-1">
+                        <span>&larr; HIGHEST WAVELENGTH (LOWEST FREQ & ENERGY)</span>
+                        <span>SHORTEST WAVELENGTH (HIGHEST FREQ & ENERGY) &rarr;</span>
+                    </div>
+
+                    <!-- Inspector output card -->
+                    <div id="em-inspector-card" class="bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 p-4 rounded-xl space-y-2">
+                        <div class="flex items-center justify-between">
+                            <h4 id="em-name" class="text-sm font-extrabold text-physics-600 uppercase">Radio Waves</h4>
+                            <span id="em-freq-energy" class="text-xxs bg-slate-200 dark:bg-slate-800 px-2.5 py-1 rounded font-bold">Non-ionizing</span>
+                        </div>
+                        <p id="em-desc" class="text-xs text-slate-600 dark:text-slate-300">Broadcasting and long-distance cellular communications.</p>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2 border-t border-slate-100 dark:border-slate-800 text-xs">
+                            <div>
+                                <strong class="text-emerald-600 dark:text-emerald-400">Common Uses:</strong>
+                                <p id="em-uses" class="text-slate-500">Radio, television, communication bands.</p>
+                            </div>
+                            <div>
+                                <strong class="text-rose-600 dark:text-rose-400">Hazards & Protection:</strong>
+                                <p id="em-hazards" class="text-slate-500">None under natural conditions.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Fundamental Properties -->
+                <div class="bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl p-5 shadow-sm space-y-3">
+                    <h3 class="text-sm font-extrabold uppercase tracking-wider">Universal Properties of EM Waves</h3>
+                    <ul class="text-xs space-y-2 list-disc pl-5 leading-relaxed">
+                        <li>All electromagnetic waves are <strong>transverse waves</strong>.</li>
+                        <li>They do not require a medium to travel; they can travel through a complete <strong>vacuum</strong>.</li>
+                        <li>They all travel at the speed of light in a vacuum: $c \approx 3.0 \times 10^8 \text{ m/s}$.</li>
+                        <li>They transfer energy from point to point, and experience reflection, refraction, and diffraction.</li>
+                    </ul>
+                </div>
+
+                <!-- Exam Practice Card -->
+                <div class="border-2 border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 rounded-xl p-5 space-y-3">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-black tracking-widest text-physics-600 uppercase">Exam Question 3 [8 Marks]</span>
+                        <span class="text-xs text-slate-400 font-bold">Recommended: 12 mins</span>
+                    </div>
+                    <div class="space-y-2 text-sm leading-relaxed">
+                        <p><strong>(a)</strong> Arrange the following in order of <em>increasing</em> frequency: radio waves, ultraviolet, microwaves, gamma rays, infrared, visible light, X-rays. [3]</p>
+                        <p><strong>(b)</strong> State one medical use of X-rays. [1]</p>
+                        <p><strong>(c)</strong> Explain why bones appear lighter than soft tissue on an X-ray image. [2]</p>
+                        <p><strong>(d)</strong> A radiographer stands behind a lead screen when taking images. Explain why this is a suitable safety measure. [2]</p>
+                    </div>
+                    <div class="pt-3">
+                        <button onclick="toggleAnswer('q3-ans')" class="bg-slate-100 dark:bg-slate-900 hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 px-4 py-2 rounded-lg text-xs font-bold transition">Reveal Mark Scheme & Solutions</button>
+                    </div>
+                    <div id="q3-ans" class="hidden p-4 bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-100 dark:border-emerald-900/50 text-xs rounded-lg space-y-2">
+                        <p><strong>(a)</strong> Radio, microwaves, infrared, visible light, ultraviolet, X-rays, gamma rays. <span class="text-emerald-600 font-bold">[3 marks - lose 1 mark per misplaced item]</span></p>
+                        <p><strong>(b)</strong> Imaging of fractured bones / dental scans / cancer therapy. <span class="text-emerald-600 font-bold">[1 mark]</span></p>
+                        <p><strong>(c)</strong> Bones are dense and absorb X-rays; soft tissue lets X-rays pass through. Thus, fewer X-rays reach the photographic film/sensor behind bones, leaving them light. <span class="text-emerald-600 font-bold">[2 marks]</span></p>
+                        <p><strong>(d)</strong> X-rays are highly ionizing and can cause genetic mutations / cancer. Lead absorbs X-rays, preventing exposure to the health professional. <span class="text-emerald-600 font-bold">[2 marks]</span></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ==========================================
+                 TAB CONTENT: CH 12 (LIGHT & TIR)
+                 ========================================== -->
+            <div id="content-light" class="tab-content space-y-6 hidden">
+                <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
+                    <div>
+                        <span class="text-xs font-bold text-amber-600">Chapter 12 Revision</span>
+                        <h2 class="text-2xl font-black">Light Waves and Critical Angle</h2>
+                    </div>
+                    <label class="flex items-center space-x-2 text-xs font-semibold text-slate-500 cursor-pointer">
+                        <input type="checkbox" data-checkbox="ch12" class="rounded text-physics-600 focus:ring-physics-500">
+                        <span>Mark Completed</span>
+                    </label>
+                </div>
+
+                <!-- TIR Simulator Tool -->
+                <div class="bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl p-5 shadow-sm space-y-4">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-sm font-extrabold uppercase tracking-wider text-slate-900 dark:text-white">🔬 Lab Simulation: Critical Angle & TIR</h3>
+                        <span class="text-xs font-semibold px-2 py-1 bg-amber-100 dark:bg-amber-950 text-amber-800 dark:text-amber-300 rounded">Glass: $n = 1.5$ (Critical Angle $c \approx 41.8^\circ$)</span>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <!-- Canvas TIR simulation -->
+                        <div class="lg:col-span-2 bg-slate-100 dark:bg-slate-900 rounded-xl p-2 relative h-48 flex flex-col justify-between">
+                            <canvas id="tir-canvas" class="w-full h-full rounded bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800"></canvas>
+                        </div>
+                        
+                        <!-- Real-time Controls and Values -->
+                        <div class="space-y-4 bg-slate-50 dark:bg-slate-900/50 p-4 rounded-xl border border-slate-200 dark:border-slate-800/50 flex flex-col justify-center">
+                            <div>
+                                <label class="text-xs font-bold text-slate-500 flex justify-between">
+                                    <span>Angle of Incidence ($i$):</span>
+                                    <span class="text-physics-600" id="val-tir-angle">35°</span>
+                                </label>
+                                <input type="range" id="slider-tir-angle" min="5" id="slider-tir" max="85" step="1" value="35" class="w-full h-1.5 bg-slate-300 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer">
+                            </div>
+                            <div class="pt-2 border-t border-slate-200 dark:border-slate-800 text-xs space-y-1">
+                                <div class="flex justify-between">
+                                    <span>Optically Denser Medium:</span>
+                                    <span class="font-bold text-slate-600 dark:text-slate-300">Glass (Bottom)</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span>State:</span>
+                                    <span class="font-extrabold text-amber-600" id="val-tir-state">Normal Refraction</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Theory Tables and Formulas -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl p-5 shadow-sm space-y-3">
+                        <h3 class="text-sm font-extrabold uppercase tracking-wider text-slate-900 dark:text-white">Core Mathematical Formulas</h3>
+                        <div class="p-4 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-lg space-y-2 text-xs">
+                            <p class="font-bold text-physics-600">Refractive Index ($n$):</p>
+                            <p class="monospace text-center py-1 text-sm bg-white dark:bg-slate-950 rounded">n = \frac{\sin i}{\sin r}</p>
+                            <p class="text-slate-400">Where $i$ is incidence in air, $r$ is refraction in dense medium.</p>
+                            
+                            <p class="font-bold text-physics-600 mt-2">Critical Angle Relation:</p>
+                            <p class="monospace text-center py-1 text-sm bg-white dark:bg-slate-950 rounded">\sin c = \frac{1}{n}</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl p-5 shadow-sm space-y-3">
+                        <h3 class="text-sm font-extrabold uppercase tracking-wider text-slate-900 dark:text-white">Two Golden Rules for TIR</h3>
+                        <p class="text-xs text-slate-500">Total Internal Reflection (TIR) occurs only when BOTH criteria are met:</p>
+                        <ol class="text-xs list-decimal pl-5 space-y-2">
+                            <li>Light must travel from an <strong>optically denser medium</strong> into an optically less dense medium (e.g., Glass to Air).</li>
+                            <li>The angle of incidence inside the denser medium must be <strong>greater than the critical angle ($i > c$)</strong>.</li>
+                        </ol>
+                    </div>
+                </div>
+
+                <!-- Exam Practice Card -->
+                <div class="border-2 border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 rounded-xl p-5 space-y-3">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-black tracking-widest text-physics-600 uppercase">Exam Question 7 [9 Marks]</span>
+                        <span class="text-xs text-slate-400 font-bold">Recommended: 15 mins</span>
+                    </div>
+                    <div class="space-y-2 text-sm leading-relaxed">
+                        <p>A ray of light travels from air into a transparent glass block. Angle of incidence = $55^\circ$, Angle of refraction = $32^\circ$.</p>
+                        <p><strong>(a)</strong> State the equation linking refractive index ($n$), angle of incidence ($i$) and angle of refraction ($r$). [1]</p>
+                        <p><strong>(b)</strong> Calculate the refractive index of the block. [3]</p>
+                        <p><strong>(c)</strong> Light now travels inside the block towards the air boundary. The critical angle is $42^\circ$. State what happens when the angle of incidence inside is $30^\circ$, $42^\circ$, and $50^\circ$. [3]</p>
+                        <p><strong>(d)</strong> Explain why optical fibres use total internal reflection. [2]</p>
+                    </div>
+                    <div class="pt-3">
+                        <button onclick="toggleAnswer('q7-ans')" class="bg-slate-100 dark:bg-slate-900 hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 px-4 py-2 rounded-lg text-xs font-bold transition">Reveal Mark Scheme & Solutions</button>
+                    </div>
+                    <div id="q7-ans" class="hidden p-4 bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-100 dark:border-emerald-900/50 text-xs rounded-lg space-y-2">
+                        <p><strong>(a)</strong> $n = \frac{\sin i}{\sin r}$ <span class="text-emerald-600 font-bold">[1 mark]</span></p>
+                        <p><strong>(b)</strong> $n = \frac{\sin 55^\circ}{\sin 32^\circ} = \frac{0.8192}{0.5299} \approx 1.55$. <span class="text-emerald-600 font-bold">[3 marks: formula, substitution, answer]</span></p>
+                        <p><strong>(c)</strong> At $30^\circ$: normal refraction (ray escapes into air, bending away from normal). At $42^\circ$: refracts at $90^\circ$ along the boundary. At $50^\circ$: Total Internal Reflection occurs ($i > c$). <span class="text-emerald-600 font-bold">[3 marks]</span></p>
+                        <p><strong>(d)</strong> TIR ensures that light signals remain completely trapped within the core, preventing signal/energy loss over massive distances. <span class="text-emerald-600 font-bold">[2 marks]</span></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ==========================================
+                 TAB CONTENT: CH 13 (SOUND WAVES)
+                 ========================================== -->
+            <div id="content-sound" class="tab-content space-y-6 hidden">
+                <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
+                    <div>
+                        <span class="text-xs font-bold text-emerald-600">Chapter 13 Revision</span>
+                        <h2 class="text-2xl font-black">Sound Waves & Oscilloscopes</h2>
+                    </div>
+                    <label class="flex items-center space-x-2 text-xs font-semibold text-slate-500 cursor-pointer">
+                        <input type="checkbox" data-checkbox="ch13" class="rounded text-physics-600 focus:ring-physics-500">
+                        <span>Mark Completed</span>
+                    </label>
+                </div>
+
+                <!-- Sound and CRO Simulator -->
+                <div class="bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl p-5 shadow-sm space-y-4">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-sm font-extrabold uppercase tracking-wider text-slate-900 dark:text-white">🔬 Lab Simulator: Oscilloscope (CRO)</h3>
+                        <span class="text-xs font-semibold px-2 py-1 bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 rounded">Interactive Sound Trace</span>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <!-- Canvas CRO Grid -->
+                        <div class="lg:col-span-2 bg-slate-950 rounded-xl p-4 relative h-48 flex flex-col justify-between border-2 border-slate-800">
+                            <canvas id="cro-canvas" class="w-full h-full rounded bg-emerald-950/20 border border-emerald-900/50"></canvas>
+                        </div>
+                        
+                        <!-- Real-time Controls and Values -->
+                        <div class="space-y-4 bg-slate-50 dark:bg-slate-900/50 p-4 rounded-xl border border-slate-200 dark:border-slate-800/50 flex flex-col justify-center text-xs">
+                            <div>
+                                <label class="font-bold text-slate-500 flex justify-between">
+                                    <span>Oscilloscope Pitch (Freq):</span>
+                                    <span class="text-emerald-600 font-bold" id="val-cro-freq">440 Hz</span>
+                                </label>
+                                <input type="range" id="slider-cro-freq" min="200" max="1000" step="10" value="440" class="w-full h-1.5 bg-slate-300 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer">
+                            </div>
+                            <div>
+                                <label class="font-bold text-slate-500 flex justify-between">
+                                    <span>Volume (Amplitude):</span>
+                                    <span class="text-emerald-600 font-bold" id="val-cro-amp">Medium</span>
+                                </label>
+                                <input type="range" id="slider-cro-amp" min="1" max="5" step="0.5" value="3" class="w-full h-1.5 bg-slate-300 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer">
+                            </div>
+                            <div class="pt-2 border-t border-slate-200 dark:border-slate-800 space-y-1">
+                                <div class="flex justify-between">
+                                    <span>Sound Wave Type:</span>
+                                    <span class="font-bold text-emerald-600">Longitudinal</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span>Hearing Range:</span>
+                                    <span class="font-bold">20 Hz - 20,000 Hz</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pitch, Loudness & CRO Theory -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl p-5 shadow-sm space-y-3">
+                        <h3 class="text-sm font-extrabold uppercase tracking-wider text-slate-900 dark:text-white">Pitch & Loudness Core Links</h3>
+                        <table class="w-full text-xs text-left border-collapse">
+                            <thead>
+                                <tr class="border-b border-slate-200 dark:border-slate-800">
+                                    <th class="pb-2 font-bold text-slate-400">Physical Feature</th>
+                                    <th class="pb-2 font-bold text-physics-600">Wave Property</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100 dark:divide-slate-900">
+                                <tr>
+                                    <td class="py-2 font-semibold">Pitch (High / Low sound)</td>
+                                    <td class="py-2 text-emerald-600 font-bold">Frequency ($f$)</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-2 font-semibold">Loudness (Volume)</td>
+                                    <td class="py-2 text-emerald-600 font-bold">Amplitude ($A$)</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl p-5 shadow-sm space-y-3">
+                        <h3 class="text-sm font-extrabold uppercase tracking-wider text-slate-900 dark:text-white">Sound Speeds inside Media</h3>
+                        <p class="text-xs leading-relaxed text-slate-500">
+                            Because sound requires <strong>matter collisions</strong> to transmit, its speed depends strictly on particle spacing:
+                        </p>
+                        <div class="grid grid-cols-3 gap-2 text-center text-xs">
+                            <div class="bg-slate-50 dark:bg-slate-900 p-2 rounded border border-slate-100 dark:border-slate-800">
+                                <span class="block font-bold">Solids</span>
+                                <span class="text-emerald-600 font-extrabold">&gt; 5000 m/s</span>
+                            </div>
+                            <div class="bg-slate-50 dark:bg-slate-900 p-2 rounded border border-slate-100 dark:border-slate-800">
+                                <span class="block font-bold">Liquids</span>
+                                <span class="text-amber-600 font-extrabold">~ 1500 m/s</span>
+                            </div>
+                            <div class="bg-slate-50 dark:bg-slate-900 p-2 rounded border border-slate-100 dark:border-slate-800">
+                                <span class="block font-bold">Gases</span>
+                                <span class="text-rose-600 font-extrabold">~ 330 m/s</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Exam Practice Box -->
+                <div class="border-2 border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 rounded-xl p-5 space-y-3">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-black tracking-widest text-physics-600 uppercase">Exam Question 5 [7 Marks]</span>
+                        <span class="text-xs text-slate-400 font-bold">Recommended: 10 mins</span>
+                    </div>
+                    <div class="space-y-2 text-sm leading-relaxed">
+                        <p>An oscilloscope is used to display the sound from a loudspeaker.</p>
+                        <p>Time-base setting = $0.20 \text{ ms}$ per division. One complete wave occupies $2.5$ divisions. Vertical setting = $1.5 \text{ V}$ per division. The amplitude of the trace is $3$ divisions.</p>
+                        <p><strong>(a)</strong> Calculate the period of the wave. [2]</p>
+                        <p><strong>(b)</strong> Calculate the frequency of the sound. [2]</p>
+                        <p><strong>(c)</strong> Calculate the amplitude of the trace in volts. [1]</p>
+                        <p><strong>(d)</strong> The volume is increased but the pitch remains unchanged. Describe how the trace changes. [2]</p>
+                    </div>
+                    <div class="pt-3">
+                        <button onclick="toggleAnswer('q5-ans')" class="bg-slate-100 dark:bg-slate-900 hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 px-4 py-2 rounded-lg text-xs font-bold transition">Reveal Mark Scheme & Solutions</button>
+                    </div>
+                    <div id="q5-ans" class="hidden p-4 bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-100 dark:border-emerald-900/50 text-xs rounded-lg space-y-2">
+                        <p><strong>(a)</strong> Period $T = 2.5 \text{ div} \times 0.20 \text{ ms/div} = 0.50 \text{ ms} = 0.0005 \text{ s}$. <span class="text-emerald-600 font-bold">[2 marks]</span></p>
+                        <p><strong>(b)</strong> Frequency $f = 1/T = 1 / 0.0005 = 2000 \text{ Hz}$ (or $2 \text{ kHz}$). <span class="text-emerald-600 font-bold">[2 marks]</span></p>
+                        <p><strong>(c)</strong> Amplitude $A = 3 \text{ div} \times 1.5 \text{ V/div} = 4.5 \text{ V}$. <span class="text-emerald-600 font-bold">[1 mark]</span></p>
+                        <p><strong>(d)</strong> The vertical peak-to-peak amplitude height will increase (greater than 3 divisions). The horizontal spacing (period) remains identical. <span class="text-emerald-600 font-bold">[2 marks]</span></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ==========================================
+                 TAB CONTENT: CH 18 (PRESSURE & FLUIDS)
+                 ========================================== -->
+            <div id="content-density" class="tab-content space-y-6 hidden">
+                <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
+                    <div>
+                        <span class="text-xs font-bold text-pink-600">Chapter 18 Revision</span>
+                        <h2 class="text-2xl font-black">Density, Pressure & Hydraulics</h2>
+                    </div>
+                    <label class="flex items-center space-x-2 text-xs font-semibold text-slate-500 cursor-pointer">
+                        <input type="checkbox" data-checkbox="ch18" class="rounded text-physics-600 focus:ring-physics-500">
+                        <span>Mark Completed</span>
+                    </label>
+                </div>
+
+                <!-- Hydraulics Piston Simulator -->
+                <div class="bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl p-5 shadow-sm space-y-4">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-sm font-extrabold uppercase tracking-wider text-slate-900 dark:text-white">🔬 Lab Simulator: Hydraulic Pascal Multiplication</h3>
+                        <span class="text-xs font-semibold px-2 py-1 bg-pink-100 dark:bg-pink-950 text-pink-800 dark:text-pink-300 rounded">Pascal: $F_1 / A_1 = F_2 / A_2$</span>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <!-- Canvas Hydraulic representation -->
+                        <div class="lg:col-span-2 bg-slate-100 dark:bg-slate-900 rounded-xl p-2 relative h-48 flex flex-col justify-between">
+                            <canvas id="hydraulic-canvas" class="w-full h-full rounded bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800"></canvas>
+                        </div>
+                        
+                        <!-- Real-time Controls and Values -->
+                        <div class="space-y-4 bg-slate-50 dark:bg-slate-900/50 p-4 rounded-xl border border-slate-200 dark:border-slate-800/50 flex flex-col justify-center text-xs">
+                            <div>
+                                <label class="font-bold text-slate-500 flex justify-between">
+                                    <span>Input Force ($F_1$):</span>
+                                    <span class="text-pink-600 font-bold" id="val-hyd-force">100 N</span>
+                                </label>
+                                <input type="range" id="slider-hyd-force" min="20" id="slider-hyd" max="500" step="10" value="100" class="w-full h-1.5 bg-slate-300 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer">
+                            </div>
+                            <div class="pt-2 border-t border-slate-200 dark:border-slate-800 space-y-1.5">
+                                <div class="flex justify-between">
+                                    <span>Input Area ($A_1$):</span>
+                                    <span>$0.015 \text{ m}^2$</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span>Output Area ($A_2$):</span>
+                                    <span>$0.450 \text{ m}^2$ (30x larger)</span>
+                                </div>
+                                <div class="flex justify-between font-bold text-pink-600">
+                                    <span>Output Force ($F_2$):</span>
+                                    <span id="val-hyd-out">3000 N</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Theory Tables and Formulas -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl p-5 shadow-sm space-y-3">
+                        <h3 class="text-sm font-extrabold uppercase tracking-wider text-slate-900 dark:text-white">Core Definitions</h3>
+                        <div class="space-y-3 text-xs leading-relaxed">
+                            <p><strong>Density ($\rho$):</strong> Mass per unit volume.
+                                <span class="block monospace bg-slate-50 dark:bg-slate-900 px-2 py-1 mt-1 font-bold text-center border rounded">\rho = \frac{m}{V} \quad [\text{kg/m}^3]</span>
+                            </p>
+                            <p><strong>Pressure ($p$):</strong> Force acting perpendicular to an area.
+                                <span class="block monospace bg-slate-50 dark:bg-slate-900 px-2 py-1 mt-1 font-bold text-center border rounded">p = \frac{F}{A} \quad [\text{Pa or N/m}^2]</span>
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl p-5 shadow-sm space-y-3">
+                        <h3 class="text-sm font-extrabold uppercase tracking-wider text-slate-900 dark:text-white">Fluid Pressure Mechanics</h3>
+                        <div class="space-y-2 text-xs leading-relaxed">
+                            <p>Pressure deep within any resting fluid behaves via the following formula:</p>
+                            <span class="block monospace bg-slate-50 dark:bg-slate-900 px-2 py-1 font-bold text-center border rounded">p = h \rho g</span>
+                            <p class="text-slate-500">
+                                Where $h$ is fluid depth, $\rho$ is density, and $g$ is gravity ($10 \text{ N/kg}$). Note that fluid pressure depends <strong>only</strong> on depth and fluid density, not the container shape or surface area!
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Exam Practice Card -->
+                <div class="border-2 border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 rounded-xl p-5 space-y-3">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-black tracking-widest text-physics-600 uppercase">Exam Question 4 [9 Marks]</span>
+                        <span class="text-xs text-slate-400 font-bold">Recommended: 15 mins</span>
+                    </div>
+                    <div class="space-y-2 text-sm leading-relaxed">
+                        <p>A submarine operates $45 \text{ m}$ below the sea surface.</p>
+                        <p>Density of seawater = $1030 \text{ kg/m}^3$. Gravity $g = 10 \text{ N/kg}$. Atmospheric pressure = $1.01 \times 10^5 \text{ Pa}$.</p>
+                        <p><strong>(a)</strong> State the equation linking pressure difference, density, depth and gravitational field strength. [1]</p>
+                        <p><strong>(b)</strong> Calculate the pressure due to the seawater at this depth. [3]</p>
+                        <p><strong>(c)</strong> Calculate the total pressure acting on the submarine. [2]</p>
+                        <p><strong>(d)</strong> The submarine dives deeper. Explain why pressure increases with depth. [2]</p>
+                        <p><strong>(e)</strong> State whether pressure depends on the surface area of the submarine. [1]</p>
+                    </div>
+                    <div class="pt-3">
+                        <button onclick="toggleAnswer('q4-ans')" class="bg-slate-100 dark:bg-slate-900 hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 px-4 py-2 rounded-lg text-xs font-bold transition">Reveal Mark Scheme & Solutions</button>
+                    </div>
+                    <div id="q4-ans" class="hidden p-4 bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-100 dark:border-emerald-900/50 text-xs rounded-lg space-y-2">
+                        <p><strong>(a)</strong> $p = h \rho g$ <span class="text-emerald-600 font-bold">[1 mark]</span></p>
+                        <p><strong>(b)</strong> $p = 45 \times 1030 \times 10 = 463,500 \text{ Pa}$ (or $4.635 \times 10^5 \text{ Pa}$). <span class="text-emerald-600 font-bold">[3 marks]</span></p>
+                        <p><strong>(c)</strong> $p_{\text{total}} = p_{\text{seawater}} + p_{\text{atm}} = 4.635 \times 10^5 + 1.01 \times 10^5 = 5.645 \times 10^5 \text{ Pa}$. <span class="text-emerald-600 font-bold">[2 marks]</span></p>
+                        <p><strong>(d)</strong> As depth increases, the weight of the water column above the submarine increases. Since pressure is force over area, this greater weight increases the pressure. <span class="text-emerald-600 font-bold">[2 marks]</span></p>
+                        <p><strong>(e)</strong> No. Fluid pressure depends only on depth and fluid density. <span class="text-emerald-600 font-bold">[1 mark]</span></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ==========================================
+                 TAB CONTENT: CH 19 (THERMAL & GAS)
+                 ========================================== -->
+            <div id="content-thermal" class="tab-content space-y-6 hidden">
+                <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
+                    <div>
+                        <span class="text-xs font-bold text-red-600">Chapter 19 Revision</span>
+                        <h2 class="text-2xl font-black">Thermal Physics & Gas Laws</h2>
+                    </div>
+                    <label class="flex items-center space-x-2 text-xs font-semibold text-slate-500 cursor-pointer">
+                        <input type="checkbox" data-checkbox="ch19" class="rounded text-physics-600 focus:ring-physics-500">
+                        <span>Mark Completed</span>
+                    </label>
+                </div>
+
+                <!-- Heating Curve Particle Simulator -->
+                <div class="bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl p-5 shadow-sm space-y-4">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-sm font-extrabold uppercase tracking-wider text-slate-900 dark:text-white">🔬 Lab Simulator: Heating Curve & Particles</h3>
+                        <span class="text-xs font-semibold px-2 py-1 bg-red-100 dark:bg-red-950 text-red-800 dark:text-red-300 rounded">Specific vs. Latent Heat</span>
+                    </div>
+
+                    <p class="text-xs text-slate-500">Click on any thermal zone of the heating graph to inspect particle arrangement and heat energy equations.</p>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <!-- Custom rendered SVG interactive graph -->
+                        <div class="lg:col-span-2 bg-slate-50 dark:bg-slate-900 p-4 border border-slate-200 dark:border-slate-800 rounded-xl relative">
+                            <svg viewBox="0 0 400 200" class="w-full h-auto text-slate-400 dark:text-slate-500">
+                                <!-- Axes -->
+                                <line x1="40" y1="20" x2="40" y2="180" stroke="currentColor" stroke-width="2"/>
+                                <line x1="40" y1="180" x2="380" y2="180" stroke="currentColor" stroke-width="2"/>
+                                
+                                <text x="15" y="100" font-size="10" transform="rotate(-90, 15, 100)" fill="currentColor" font-weight="bold">Temperature (°C)</text>
+                                <text x="200" y="195" font-size="10" fill="currentColor" font-weight="bold" text-anchor="middle">Time / Thermal Energy Added</text>
+                                
+                                <!-- Heat Curve Lines as Buttons -->
+                                <polyline points="40,170 100,140 180,140 250,60 340,60" fill="none" stroke="#94a3b8" stroke-width="4" stroke-linecap="round"/>
+                                
+                                <!-- Slanted Ice -->
+                                <circle cx="70" cy="155" r="8" fill="#38bdf8" class="cursor-pointer hover:scale-125 transition" onclick="inspectThermal('ice')"/>
+                                <!-- Flat Melting -->
+                                <circle cx="140" cy="140" r="8" fill="#fbbf24" class="cursor-pointer hover:scale-125 transition" onclick="inspectThermal('melting')"/>
+                                <!-- Slanted Liquid -->
+                                <circle cx="215" cy="100" r="8" fill="#3b82f6" class="cursor-pointer hover:scale-125 transition" onclick="inspectThermal('water')"/>
+                                <!-- Flat Boiling -->
+                                <circle cx="295" cy="60" r="8" fill="#f87171" class="cursor-pointer hover:scale-125 transition" onclick="inspectThermal('boiling')"/>
+                            </svg>
+                        </div>
+                        
+                        <!-- Inspector Dashboard for Phase Changes -->
+                        <div id="thermal-inspector-card" class="bg-slate-50 dark:bg-slate-900/50 p-4 rounded-xl border border-slate-200 dark:border-slate-800/50 flex flex-col justify-center text-xs space-y-2">
+                            <h4 id="thermal-title" class="font-bold text-physics-600 uppercase">Ice Phase (Solid)</h4>
+                            <p id="thermal-math" class="monospace bg-white dark:bg-slate-950 p-1.5 border rounded font-extrabold text-center text-xs">Q = mc\Delta T</p>
+                            <p id="thermal-desc" class="text-slate-500">
+                                Solid particles are bound tightly in a regular, close lattice. They vibrate on spot. Adding heat energy causes kinetic energy and temperature to rise.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Specific Heat and Gas Law Tables -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl p-5 shadow-sm space-y-3">
+                        <h3 class="text-sm font-extrabold uppercase tracking-wider text-slate-900 dark:text-white">Core Thermodynamic Calculations</h3>
+                        <div class="space-y-3 text-xs leading-relaxed">
+                            <p><strong>Specific Heat Capacity ($c$):</strong> Energy to raise 1 kg by 1°C.
+                                <span class="block monospace bg-slate-50 dark:bg-slate-900 px-2 py-1 mt-1 font-bold text-center border rounded">Q = mc\Delta T</span>
+                            </p>
+                            <p><strong>Specific Latent Heat ($L$):</strong> Energy to change state of 1 kg with ZERO temperature change.
+                                <span class="block monospace bg-slate-50 dark:bg-slate-900 px-2 py-1 mt-1 font-bold text-center border rounded">Q = mL</span>
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl p-5 shadow-sm space-y-3">
+                        <h3 class="text-sm font-extrabold uppercase tracking-wider text-slate-900 dark:text-white">Ideal Gas Laws</h3>
+                        <table class="w-full text-xs text-left border-collapse">
+                            <thead>
+                                <tr class="border-b border-slate-200 dark:border-slate-800">
+                                    <th class="pb-2 font-bold text-slate-400">Condition</th>
+                                    <th class="pb-2 font-bold text-physics-600">Relationship</th>
+                                    <th class="pb-2 font-bold text-slate-400">Formula</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100 dark:divide-slate-900">
+                                <tr>
+                                    <td class="py-2">Constant Temp</td>
+                                    <td class="py-2">$p \propto 1/V$</td>
+                                    <td class="py-2 font-bold">$p_1 V_1 = p_2 V_2$</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-2">Constant Vol</td>
+                                    <td class="py-2">$p \propto T$</td>
+                                    <td class="py-2 font-bold">$p_1 / T_1 = p_2 / T_2$</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-2">Constant Press</td>
+                                    <td class="py-2">$V \propto T$</td>
+                                    <td class="py-2 font-bold">$V_1 / T_1 = V_2 / T_2$</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <p class="text-xxs text-amber-600 font-extrabold">🚨 CRITICAL RULE: Always convert Celsius temperatures to Kelvin: $T(\text{K}) = \theta(^\circ\text{C}) + 273$ before calculating!</p>
+                    </div>
+                </div>
+
+                <!-- Exam Practice Card -->
+                <div class="border-2 border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 rounded-xl p-5 space-y-3">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-black tracking-widest text-physics-600 uppercase">Exam Question 6 [10 Marks]</span>
+                        <span class="text-xs text-slate-400 font-bold">Recommended: 15 mins</span>
+                    </div>
+                    <div class="space-y-2 text-sm leading-relaxed">
+                        <p>A student uses steam at $100^\circ\text{C}$ to heat $0.40 \text{ kg}$ of milk from $12^\circ\text{C}$ to $65^\circ\text{C}$.</p>
+                        <p>Specific heat capacity of milk = $3900 \text{ J / kg}^\circ\text{C}$. Latent heat of vaporisation of water = $2.3 \times 10^6 \text{ J/kg}$.</p>
+                        <p><strong>(a)</strong> Calculate the energy needed to heat the milk to $65^\circ\text{C}$. [3]</p>
+                        <p><strong>(b)</strong> Calculate the mass of steam needed if only condensation latent heat is considered. [3]</p>
+                        <p><strong>(c)</strong> In reality, the condensed water cools from $100^\circ\text{C}$ to $65^\circ\text{C}$. Explain whether the actual steam mass needed is smaller or larger than (b). [2]</p>
+                    </div>
+                    <div class="pt-3">
+                        <button onclick="toggleAnswer('q6-ans')" class="bg-slate-100 dark:bg-slate-900 hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 px-4 py-2 rounded-lg text-xs font-bold transition">Reveal Mark Scheme & Solutions</button>
+                    </div>
+                    <div id="q6-ans" class="hidden p-4 bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-100 dark:border-emerald-900/50 text-xs rounded-lg space-y-2">
+                        <p><strong>(a)</strong> $Q = mc\Delta T = 0.40 \times 3900 \times (65 - 12) = 0.40 \times 3900 \times 53 = 82,680 \text{ J}$. <span class="text-emerald-600 font-bold">[3 marks]</span></p>
+                        <p><strong>(b)</strong> $Q = mL \implies m = Q/L = 82,680 / (2.3 \times 10^6) \approx 0.036 \text{ kg}$ (or $36 \text{ g}$). <span class="text-emerald-600 font-bold">[3 marks]</span></p>
+                        <p><strong>(c)</strong> Smaller. The water cooled from $100^\circ\text{C}$ to $65^\circ\text{C}$ will also release sensible heat ($Q = mc\Delta T$), meaning less overall steam mass is required to meet the energy quota. <span class="text-emerald-600 font-bold">[2 marks]</span></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ==========================================
+                 TAB CONTENT: PRACTICE EXAMS & REVISION PAPERS
+                 ========================================== -->
+            <div id="content-practice" class="tab-content space-y-6 hidden">
+                <div class="border-b border-slate-200 dark:border-slate-800 pb-3">
+                    <span class="text-xs font-bold text-rose-600">Revision Assessment Center</span>
+                    <h2 class="text-2xl font-black">All Chapters Practice Exam Booklet</h2>
+                </div>
+
+                <!-- Integrated Practice Paper Q12 -->
+                <div class="bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl p-5 shadow-sm space-y-4">
+                    <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-2">
+                        <h3 class="text-sm font-extrabold uppercase text-slate-900 dark:text-white">Q12 - Integrated Mechanical & Thermal Challenge [10 Marks]</h3>
+                        <span class="text-xs bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300 font-bold px-2 py-0.5 rounded">Hard</span>
+                    </div>
+                    <p class="text-xs leading-relaxed text-slate-600 dark:text-slate-300">
+                        A metal container has a base area of $0.080 \text{ m}^2$. It contains $6.0 \text{ kg}$ of water. The water is heated from $18^\circ\text{C}$ to $100^\circ\text{C}$.
+                        <br><em>Given: $c_{\text{water}} = 4200 \text{ J / kg}^\circ\text{C}$, $g = 10 \text{ N/kg}$, $\rho_{\text{water}} = 1000 \text{ kg/m}^3$.</em>
+                    </p>
+                    <div class="space-y-3 text-xs pl-4">
+                        <p><strong>(a)</strong> Calculate the thermal energy needed to heat the water to $100^\circ\text{C}$. [3]</p>
+                        <p><strong>(b)</strong> Calculate the weight of the water. [1]</p>
+                        <p><strong>(c)</strong> Calculate the pressure exerted by the water on the container base due to its weight. [2]</p>
+                        <p><strong>(d)</strong> Use density to calculate the volume of water. [2]</p>
+                        <p><strong>(e)</strong> Calculate the depth of water in the container. [1]</p>
+                        <p><strong>(f)</strong> Verify your pressure answer using $p = h \rho g$. [1]</p>
+                    </div>
+                    <div class="pt-2">
+                        <button onclick="toggleAnswer('q12-ans')" class="bg-slate-100 dark:bg-slate-900 hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 px-4 py-2 rounded-lg text-xs font-bold transition">Reveal Multi-Stage Solutions</button>
+                    </div>
+                    <div id="q12-ans" class="hidden p-4 bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-100 dark:border-emerald-900/50 text-xs rounded-lg space-y-3">
+                        <p><strong>(a)</strong> $Q = mc\Delta T = 6.0 \times 4200 \times (100 - 18) = 2,066,400 \text{ J}$. <span class="text-emerald-600 font-bold">[3 marks]</span></p>
+                        <p><strong>(b)</strong> $W = mg = 6.0 \times 10 = 60 \text{ N}$. <span class="text-emerald-600 font-bold">[1 mark]</span></p>
+                        <p><strong>(c)</strong> $p = F/A = 60 \text{ N} / 0.080 \text{ m}^2 = 750 \text{ Pa}$. <span class="text-emerald-600 font-bold">[2 marks]</span></p>
+                        <p><strong>(d)</strong> $V = m/\rho = 6.0 / 1000 = 0.006 \text{ m}^3$ (or $6.0 \text{ L}$). <span class="text-emerald-600 font-bold">[2 marks]</span></p>
+                        <p><strong>(e)</strong> $V = A \times h \implies h = V/A = 0.006 / 0.080 = 0.075 \text{ m}$ ($7.5 \text{ cm}$). <span class="text-emerald-600 font-bold">[1 mark]</span></p>
+                        <p><strong>(f)</strong> $p = h \rho g = 0.075 \times 1000 \times 10 = 750 \text{ Pa}$. (Matches (c) perfectly!) <span class="text-emerald-600 font-bold">[1 mark]</span></p>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+
+        <!-- Right split workspace panel (takes 34% width, digitalizes the original split-page notes margin) -->
+        <aside id="workspace-sidebar" class="w-80 bg-white dark:bg-slate-950 border-l border-slate-200 dark:border-slate-800 flex flex-col shrink-0 overflow-y-auto hidden lg:flex">
+            <!-- Toggle tabs for right panel -->
+            <div class="flex border-b border-slate-200 dark:border-slate-800 shrink-0">
+                <button onclick="switchWorkspaceTab('notepad')" id="tab-work-notepad" class="flex-1 py-3 text-xs font-bold text-center border-b-2 border-physics-600 text-physics-600">NOTEPAD</button>
+                <button onclick="switchWorkspaceTab('checklist')" id="tab-work-checklist" class="flex-1 py-3 text-xs font-bold text-center text-slate-400 hover:text-slate-600">CHECKLIST</button>
+                <button onclick="switchWorkspaceTab('calc')" id="tab-work-calc" class="flex-1 py-3 text-xs font-bold text-center text-slate-400 hover:text-slate-600">CALCULATOR</button>
+            </div>
+
+            <!-- Workspace: Digital Scratch Notepad -->
+            <div id="work-pane-notepad" class="flex-1 p-4 flex flex-col space-y-4">
+                <div class="flex items-center justify-between">
+                    <span class="text-xxs font-extrabold uppercase tracking-widest text-slate-400">Study Scratchpad</span>
+                    <button onclick="clearScratchpad()" class="text-xxs text-rose-500 font-bold hover:underline">Clear Notes</button>
+                </div>
+                <!-- Drawing Canvas Pad -->
+                <div class="border border-slate-200 dark:border-slate-800 rounded-lg overflow-hidden h-36 bg-slate-50 dark:bg-slate-900 flex flex-col relative">
+                    <canvas id="sketchpad" class="w-full h-full cursor-crosshair"></canvas>
+                    <div class="absolute bottom-1 right-1 flex space-x-1">
+                        <button onclick="clearCanvas()" class="px-1.5 py-0.5 bg-slate-200 dark:bg-slate-800 text-[9px] font-bold rounded">Eraser</button>
+                    </div>
+                </div>
+                
+                <textarea id="notepad-text" placeholder="Type quick study insights here... (e.g. v = f * lambda, transverse oscillates perpendicular...)" class="flex-1 w-full p-3 text-xs border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 rounded-lg focus:outline-none focus:ring-1 focus:ring-physics-600 resize-none h-40 font-medium leading-relaxed"></textarea>
+                <p class="text-[10px] text-slate-400 text-center">Notepad edits are saved to temporary session memory.</p>
+            </div>
+
+            <!-- Workspace: Checklist tracker -->
+            <div id="work-pane-checklist" class="flex-1 p-4 space-y-4 hidden">
+                <span class="text-xxs font-extrabold uppercase tracking-widest text-slate-400 block mb-2">Study Task Checklist</span>
+                <div class="space-y-3" id="checklist-container">
+                    <!-- Javascript populates checkboxes from active checkboxes above -->
+                    <label class="flex items-start space-x-3 text-xs p-2.5 rounded-lg bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800/50">
+                        <input type="checkbox" id="chk-list-10" onchange="syncCheck('ch10', this)" class="mt-0.5 rounded text-physics-600">
+                        <div>
+                            <strong class="block">Ch 10: Wave Basics</strong>
+                            <span class="text-slate-400 text-[10px]">Transverse/Longitudinal, wave velocity.</span>
+                        </div>
+                    </label>
+
+                    <label class="flex items-start space-x-3 text-xs p-2.5 rounded-lg bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800/50">
+                        <input type="checkbox" id="chk-list-11" onchange="syncCheck('ch11', this)" class="mt-0.5 rounded text-physics-600">
+                        <div>
+                            <strong class="block">Ch 11: EM Spectrum</strong>
+                            <span class="text-slate-400 text-[10px]">Frequency ordering, radiation safety.</span>
+                        </div>
+                    </label>
+
+                    <label class="flex items-start space-x-3 text-xs p-2.5 rounded-lg bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800/50">
+                        <input type="checkbox" id="chk-list-12" onchange="syncCheck('ch12', this)" class="mt-0.5 rounded text-physics-600">
+                        <div>
+                            <strong class="block">Ch 12: Optical Physics & TIR</strong>
+                            <span class="text-slate-400 text-[10px]">Snell's Law, critical angle boundary rules.</span>
+                        </div>
+                    </label>
+
+                    <label class="flex items-start space-x-3 text-xs p-2.5 rounded-lg bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800/50">
+                        <input type="checkbox" id="chk-list-13" onchange="syncCheck('ch13', this)" class="mt-0.5 rounded text-physics-600">
+                        <div>
+                            <strong class="block">Ch 13: Acoustics & Sound</strong>
+                            <span class="text-slate-400 text-[10px]">Hearing spectrum, pitch vs freq on CRO.</span>
+                        </div>
+                    </label>
+
+                    <label class="flex items-start space-x-3 text-xs p-2.5 rounded-lg bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800/50">
+                        <input type="checkbox" id="chk-list-18" onchange="syncCheck('ch18', this)" class="mt-0.5 rounded text-physics-600">
+                        <div>
+                            <strong class="block">Ch 18: Pressure & Hydraulics</strong>
+                            <span class="text-slate-400 text-[10px]">Density calculations, Pascal's multiplier.</span>
+                        </div>
+                    </label>
+
+                    <label class="flex items-start space-x-3 text-xs p-2.5 rounded-lg bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800/50">
+                        <input type="checkbox" id="chk-list-19" onchange="syncCheck('ch19', this)" class="mt-0.5 rounded text-physics-600">
+                        <div>
+                            <strong class="block">Ch 19: Thermodynamics</strong>
+                            <span class="text-slate-400 text-[10px]">Latent heat calculations, ideal gas laws.</span>
+                        </div>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Workspace: Physics Sandbox Calculator -->
+            <div id="work-pane-calc" class="flex-1 p-4 space-y-4 hidden text-xs">
+                <span class="text-xxs font-extrabold uppercase tracking-widest text-slate-400 block mb-2">Equation Solver sandbox</span>
+                <div class="space-y-3">
+                    <div class="bg-slate-50 dark:bg-slate-900 p-3 rounded-lg border border-slate-200 dark:border-slate-800">
+                        <h4 class="font-bold text-physics-600 mb-2">Wave Equation solver</h4>
+                        <div class="space-y-2">
+                            <div class="flex items-center justify-between">
+                                <span>Freq $f$ (Hz):</span>
+                                <input type="number" id="calc-wave-f" value="200" class="w-20 p-1 border rounded bg-white dark:bg-slate-950 text-right">
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span>Lambda $\lambda$ (m):</span>
+                                <input type="number" id="calc-wave-l" value="0.12" step="0.01" class="w-20 p-1 border rounded bg-white dark:bg-slate-950 text-right">
+                            </div>
+                            <button onclick="calcWaveSpeed()" class="w-full py-1.5 bg-physics-600 text-white font-bold rounded hover:bg-physics-700 transition">Solve Wave Speed</button>
+                            <div class="text-center pt-1 font-bold text-physics-700 dark:text-physics-400" id="calc-wave-out">$v = 24 \text{ m/s}$</div>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-50 dark:bg-slate-900 p-3 rounded-lg border border-slate-200 dark:border-slate-800">
+                        <h4 class="font-bold text-physics-600 mb-2">Refractive Index / Critical Angle</h4>
+                        <div class="space-y-2">
+                            <div class="flex items-center justify-between">
+                                <span>Index $n$:</span>
+                                <input type="number" id="calc-index-n" value="1.5" step="0.01" class="w-20 p-1 border rounded bg-white dark:bg-slate-950 text-right">
+                            </div>
+                            <button onclick="calcCriticalAngle()" class="w-full py-1.5 bg-physics-600 text-white font-bold rounded hover:bg-physics-700 transition">Solve Critical Angle</button>
+                            <div class="text-center pt-1 font-bold text-physics-700 dark:text-physics-400" id="calc-crit-out">$c = 41.81^\circ$</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+    </div>
+
+    <!-- Master controller script -->
+    <script>
+        // DOM Elements
+        const themeToggleDarkIcon = document.getElementById('theme-toggle-dark-icon');
+        const themeToggleLightIcon = document.getElementById('theme-toggle-light-icon');
+        const themeToggleBtn = document.getElementById('theme-toggle');
+
+        // Setup Theme logic
+        if (localStorage.getItem('color-theme') === 'dark' || (!('color-theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+            themeToggleLightIcon.classList.remove('hidden');
+        } else {
+            document.documentElement.classList.remove('dark');
+            themeToggleDarkIcon.classList.remove('hidden');
+        }
+
+        themeToggleBtn.addEventListener('click', function() {
+            themeToggleDarkIcon.classList.toggle('hidden');
+            themeToggleLightIcon.classList.toggle('hidden');
+
+            if (localStorage.getItem('color-theme')) {
+                if (localStorage.getItem('color-theme') === 'light') {
+                    document.documentElement.classList.add('dark');
+                    localStorage.setItem('color-theme', 'dark');
+                } else {
+                    document.documentElement.classList.remove('dark');
+                    localStorage.setItem('color-theme', 'light');
+                }
+            } else {
+                if (document.documentElement.classList.contains('dark')) {
+                    document.documentElement.classList.remove('dark');
+                    localStorage.setItem('color-theme', 'light');
+                } else {
+                    document.documentElement.classList.add('dark');
+                    localStorage.setItem('color-theme', 'dark');
+                }
+            }
+        });
+
+        // Tab Switching Engine
+        function switchTab(tabId) {
+            // Update Tab contents visibility
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.getElementById('content-' + tabId).classList.remove('hidden');
+
+            // Update Tab Button Styles
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('bg-physics-100', 'dark:bg-slate-800', 'text-physics-700', 'dark:text-white', 'font-semibold');
+                btn.classList.add('text-slate-600', 'dark:text-slate-300', 'font-medium');
+            });
+            const activeBtn = document.getElementById('btn-tab-' + tabId);
+            if (activeBtn) {
+                activeBtn.classList.add('bg-physics-100', 'dark:bg-slate-800', 'text-physics-700', 'dark:text-white', 'font-semibold');
+                activeBtn.classList.remove('text-slate-600', 'dark:text-slate-300', 'font-medium');
+            }
+
+            // Sync Mobile Nav Picker
+            const mobNav = document.getElementById('mobile-nav');
+            if (mobNav) mobNav.value = tabId;
+
+            // Trigger Simulator initializations if needed
+            if (tabId === 'waves') initWaveSim();
+            if (tabId === 'light') initTIRSim();
+            if (tabId === 'sound') initCROSim();
+            if (tabId === 'density') initHydraulicsSim();
+        }
+
+        // Switch Workspace Right Panel Tab
+        function switchWorkspaceTab(tab) {
+            document.querySelectorAll('[id^="work-pane-"]').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('[id^="tab-work-"]').forEach(btn => {
+                btn.classList.remove('border-b-2', 'border-physics-600', 'text-physics-600');
+                btn.classList.add('text-slate-400');
+            });
+            
+            document.getElementById('work-pane-' + tab).classList.remove('hidden');
+            const activeTab = document.getElementById('tab-work-' + tab);
+            activeTab.classList.add('border-b-2', 'border-physics-600', 'text-physics-600');
+            activeTab.classList.remove('text-slate-400');
+        }
+
+        // Toggle Exam Answer Panels
+        function toggleAnswer(ansId) {
+            const ansDiv = document.getElementById(ansId);
+            ansDiv.classList.toggle('hidden');
+        }
+
+        // Syllabus Checklist Progress Logic
+        const syllabusChecks = {
+            ch10: false, ch11: false, ch12: false, ch13: false, ch18: false, ch19: false
+        };
+
+        // Sync local document checklists with active study checkpoints
+        document.querySelectorAll('input[type="checkbox"][data-checkbox]').forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                const key = this.getAttribute('data-checkbox');
+                syllabusChecks[key] = this.checked;
+                
+                // Sync task list checkbox
+                const targetCheck = document.getElementById('chk-list-' + key.replace('ch', ''));
+                if (targetCheck) targetCheck.checked = this.checked;
+
+                calculateProgress();
+            });
+        });
+
+        function syncCheck(chKey, cb) {
+            syllabusChecks[chKey] = cb.checked;
+            // Sync page checkbox
+            const targetPageCheck = document.querySelector(`input[data-checkbox="${chKey}"]`);
+            if (targetPageCheck) targetPageCheck.checked = cb.checked;
+            
+            calculateProgress();
+        }
+
+        function calculateProgress() {
+            const total = Object.keys(syllabusChecks).length;
+            const completed = Object.values(syllabusChecks).filter(val => val).length;
+            const percent = Math.round((completed / total) * 100);
+            
+            document.getElementById('overall-progress').textContent = percent + '%';
+        }
+
+        // EM Inspector DB
+        const emDb = {
+            radio: {
+                name: "Radio Waves",
+                freq: "Lowest Frequency (< 300 GHz)",
+                desc: "Extremely long wavelengths. Travel through obstacles safely over large distances.",
+                uses: "Television broadcasting, AM/FM radio, civilian communication bands.",
+                hazards: "None detected at natural power levels."
+            },
+            micro: {
+                name: "Microwaves",
+                freq: "300 MHz to 300 GHz",
+                desc: "Shorter wavelength than radio. Strongly absorbed by water molecules causing heating.",
+                uses: "Satellite telemetry, cellular communications, WiFi, microwave oven cooking.",
+                hazards: "Internal heating of soft tissues under high direct exposure. Protect using metal casing shields."
+            },
+            ir: {
+                name: "Infrared Radiation",
+                freq: "300 GHz to 400 THz",
+                desc: "Felt directly as heat. Emitted by all warm/hot objects.",
+                uses: "TV remote controllers, night vision systems, radiant household heaters.",
+                hazards: "Direct concentrated exposure causes severe skin burns or thermal eye damage. Shield with heat mirrors."
+            },
+            visible: {
+                name: "Visible Light spectrum",
+                freq: "400 THz to 750 THz",
+                desc: "The only band detectable by the human retina. Consists of colors Red through Violet.",
+                uses: "Photography, vision, fiber-optic communications.",
+                hazards: "Extremely bright sources (lasers) can permanently burn cells on the retina."
+            },
+            uv: {
+                name: "Ultraviolet rays",
+                freq: "750 THz to 30 PHz",
+                desc: "Possesses enough photon energy to trigger chemical reactions and slight ionization.",
+                uses: "Sterilisation of medical instruments, fluorescent lamps, document security verification.",
+                hazards: "Sunburn, premature skin ageing, skin cancer risks. Guard with high-SPF sunscreens and UV-absorbing lenses."
+            },
+            xray: {
+                name: "X-Rays",
+                freq: "30 PHz to 30 EHz",
+                desc: "High energy, highly ionizing radiation. Easily penetrates soft tissue but stopped by bone and lead.",
+                uses: "Hospital bone fracture imaging, industrial crystal inspection, airport baggage security scanning.",
+                hazards: "Deep cell damage, DNA destruction causing mutation/cancer. Radiographers hide behind lead walls."
+            },
+            gamma: {
+                name: "Gamma Rays",
+                freq: "Highest Frequency (> 10^19 Hz)",
+                desc: "Highest energy waves. Emitted during nuclear decay. Completely ionizing.",
+                uses: "Targeted tumor cell destruction (radiotherapy), surgical equipment sterilization.",
+                hazards: "Fatal cellular destruction and radiation sickness. Requires thick lead or concrete blocks to shield."
+            }
+        };
+
+        function inspectEM(key) {
+            const data = emDb[key];
+            document.getElementById('em-name').textContent = data.name;
+            document.getElementById('em-freq-energy').textContent = data.freq;
+            document.getElementById('em-desc').textContent = data.desc;
+            document.getElementById('em-uses').textContent = data.uses;
+            document.getElementById('em-hazards').textContent = data.hazards;
+        }
+
+        // Thermal Phase Changes DB
+        const thermalDb = {
+            ice: {
+                title: "Ice Phase (Solid State)",
+                math: "Q = mc_\\text{ice}\\Delta T",
+                desc: "Solid particles are bound in a regular, close lattice. They vibrate on spot. Adding heat energy causes molecular kinetic energy and temperature to rise."
+            },
+            melting: {
+                title: "Melting Phase (Solid to Liquid)",
+                math: "Q = mL_f",
+                desc: "Temperature remains completely constant. Added thermal energy is used solely to overcome electrostatic forces of attraction holding the solid lattice together."
+            },
+            water: {
+                title: "Water Phase (Liquid State)",
+                math: "Q = mc_\\text{water}\\Delta T",
+                desc: "Particles are closely packed but arranged randomly. They can roll and flow around each other. Heating increases kinetic energy and temperature."
+            },
+            boiling: {
+                title: "Boiling Phase (Liquid to Gas)",
+                math: "Q = mL_v",
+                desc: "Temperature is locked at exactly 100°C. Energy is used exclusively to break all remaining liquid bonds, converting the liquid completely into steam."
+            }
+        };
+
+        function inspectThermal(key) {
+            const data = thermalDb[key];
+            document.getElementById('thermal-title').textContent = data.title;
+            document.getElementById('thermal-math').textContent = '$$' + data.math + '$$';
+            document.getElementById('thermal-desc').textContent = data.desc;
+            renderMathInElement(document.getElementById('thermal-math'));
+        }
+
+        // Wave Equation Solver
+        function calcWaveSpeed() {
+            const f = parseFloat(document.getElementById('calc-wave-f').value);
+            const l = parseFloat(document.getElementById('calc-wave-l').value);
+            if (isNaN(f) || isNaN(l)) return;
+            const v = (f * l).toFixed(2);
+            document.getElementById('calc-wave-out').innerHTML = `$v = ${v} \\text{ m/s}$`;
+            renderMathInElement(document.getElementById('calc-wave-out'));
+        }
+
+        // Critical Angle Solver
+        function calcCriticalAngle() {
+            const n = parseFloat(document.getElementById('calc-index-n').value);
+            if (isNaN(n) || n < 1) {
+                document.getElementById('calc-crit-out').innerHTML = "n must be >= 1";
+                return;
+            }
+            const c = (Math.asin(1 / n) * (180 / Math.PI)).toFixed(2);
+            document.getElementById('calc-crit-out').innerHTML = `$c = ${c}^\\circ$`;
+            renderMathInElement(document.getElementById('calc-crit-out'));
+        }
+
+        // ==========================================
+        // GRAPHICS & CANVAS SIMULATORS ENGINE
+        // ==========================================
+
+        let activeAnimId = null;
+
+        // 1. Wave Generator Simulator
+        function initWaveSim() {
+            if (activeAnimId) cancelAnimationFrame(activeAnimId);
+            const canvas = document.getElementById('wave-canvas');
+            const ctx = canvas.getContext('2d');
+            
+            // Handle fluid canvas scaling
+            canvas.width = canvas.parentElement.clientWidth;
+            canvas.height = canvas.parentElement.clientHeight;
+
+            const sliderFreq = document.getElementById('slider-wave-freq');
+            const sliderLambda = document.getElementById('slider-wave-lambda');
+
+            let offset = 0;
+
+            function drawWave() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                
+                const freq = parseFloat(sliderFreq.value);
+                const lambda = parseFloat(sliderLambda.value);
+                const velocity = freq * lambda;
+
+                // Update text display
+                document.getElementById('val-wave-freq').textContent = freq.toFixed(1) + ' Hz';
+                document.getElementById('val-wave-lambda').textContent = lambda.toFixed(0) + ' m';
+                document.getElementById('val-wave-velocity').innerHTML = `$v = ${velocity.toFixed(1)} \\text{ m/s}$`;
+                renderMathInElement(document.getElementById('val-wave-velocity'));
+
+                // Draw static center equilibrium line
+                ctx.strokeStyle = '#94a3b8';
+                ctx.setLineDash([5, 5]);
+                ctx.beginPath();
+                ctx.moveTo(0, canvas.height / 2);
+                ctx.lineTo(canvas.width, canvas.height / 2);
+                ctx.stroke();
+                ctx.setLineDash([]);
+
+                // Draw continuous Sine Wave
+                ctx.strokeStyle = '#0284c7';
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                
+                for (let x = 0; x < canvas.width; x++) {
+                    const angle = ((x / lambda) * 2 * Math.PI) - offset;
+                    const y = (canvas.height / 2) + Math.sin(angle) * 40;
+                    if (x === 0) ctx.moveTo(x, y);
+                    else ctx.lineTo(x, y);
+                }
+                ctx.stroke();
+
+                // Increment wave movement offset
+                offset += (freq * 0.05);
+
+                activeAnimId = requestAnimationFrame(drawWave);
+            }
+            drawWave();
+        }
+
+        // 2. TIR / Refraction Lab Simulator
+        function initTIRSim() {
+            if (activeAnimId) cancelAnimationFrame(activeAnimId);
+            const canvas = document.getElementById('tir-canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = canvas.parentElement.clientWidth;
+            canvas.height = canvas.parentElement.clientHeight;
+
+            const slider = document.getElementById('slider-tir-angle');
+
+            function drawTIR() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                const incidentAngleDeg = parseFloat(slider.value);
+                document.getElementById('val-tir-angle').textContent = incidentAngleDeg + '°';
+
+                const cx = canvas.width / 2;
+                const cy = canvas.height / 2;
+
+                // Draw Boundary Line (Medium partition)
+                ctx.fillStyle = '#e2e8f0';
+                ctx.fillRect(0, cy, canvas.width, cy); // Glass bottom
+                
+                ctx.strokeStyle = '#475569';
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                ctx.moveTo(0, cy);
+                ctx.lineTo(canvas.width, cy);
+                ctx.stroke();
+
+                // Normal line (vertical dashes)
+                ctx.strokeStyle = '#94a3b8';
+                ctx.setLineDash([4, 4]);
+                ctx.beginPath();
+                ctx.moveTo(cx, 0);
+                ctx.lineTo(cx, canvas.height);
+                ctx.stroke();
+                ctx.setLineDash([]);
+
+                // Light Properties
+                const n = 1.5; // Glass index
+                const critRad = Math.asin(1/n);
+                const critDeg = critRad * (180 / Math.PI);
+
+                // Incident ray (from bottom up to center)
+                const incRad = incidentAngleDeg * (Math.PI / 180);
+                const ix = cx - Math.sin(incRad) * 80;
+                const iy = cy + Math.cos(incRad) * 80;
+
+                ctx.strokeStyle = '#f59e0b';
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                ctx.moveTo(ix, iy);
+                ctx.lineTo(cx, cy);
+                ctx.stroke();
+
+                let stateText = "";
+                if (incidentAngleDeg < critDeg) {
+                    // Normal Refraction escaping into air
+                    stateText = "Normal Refraction";
+                    document.getElementById('val-tir-state').className = "font-extrabold text-blue-600";
+                    
+                    const refRad = Math.asin(n * Math.sin(incRad));
+                    const rx = cx + Math.sin(refRad) * 80;
+                    const ry = cy - Math.cos(refRad) * 80;
+
+                    ctx.strokeStyle = '#3b82f6';
+                    ctx.beginPath();
+                    ctx.moveTo(cx, cy);
+                    ctx.lineTo(rx, ry);
+                    ctx.stroke();
+                } else if (Math.abs(incidentAngleDeg - critDeg) < 1.5) {
+                    // Refraction along boundary (Critical Angle)
+                    stateText = "Critical Angle (90° refraction)";
+                    document.getElementById('val-tir-state').className = "font-extrabold text-emerald-600";
+
+                    ctx.strokeStyle = '#10b981';
+                    ctx.beginPath();
+                    ctx.moveTo(cx, cy);
+                    ctx.lineTo(cx + 80, cy);
+                    ctx.stroke();
+                } else {
+                    // Total Internal Reflection (TIR)
+                    stateText = "Total Internal Reflection (i > c)";
+                    document.getElementById('val-tir-state').className = "font-extrabold text-rose-600";
+
+                    const rx = cx + Math.sin(incRad) * 80;
+                    const ry = cy + Math.cos(incRad) * 80;
+
+                    ctx.strokeStyle = '#ef4444';
+                    ctx.beginPath();
+                    ctx.moveTo(cx, cy);
+                    ctx.lineTo(rx, ry);
+                    ctx.stroke();
+                }
+
+                document.getElementById('val-tir-state').textContent = stateText;
+
+                activeAnimId = requestAnimationFrame(drawTIR);
+            }
+            drawTIR();
+        }
+
+        // 3. Oscilloscope Sound Trace simulator
+        function initCROSim() {
+            if (activeAnimId) cancelAnimationFrame(activeAnimId);
+            const canvas = document.getElementById('cro-canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = canvas.parentElement.clientWidth;
+            canvas.height = canvas.parentElement.clientHeight;
+
+            const sliderFreq = document.getElementById('slider-cro-freq');
+            const sliderAmp = document.getElementById('slider-cro-amp');
+
+            let time = 0;
+
+            function drawCRO() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                const freq = parseFloat(sliderFreq.value);
+                const ampLevel = parseFloat(sliderAmp.value);
+
+                document.getElementById('val-cro-freq').textContent = freq + ' Hz';
+                
+                let volText = "Medium";
+                if (ampLevel < 2) volText = "Quiet";
+                if (ampLevel > 4) volText = "LOUD";
+                document.getElementById('val-cro-amp').textContent = volText;
+
+                // Draw Grid Lines (CRO graticule)
+                ctx.strokeStyle = '#064e3b';
+                ctx.lineWidth = 0.5;
+                const divWidth = canvas.width / 10;
+                const divHeight = canvas.height / 6;
+
+                for (let i = 1; i < 10; i++) {
+                    ctx.beginPath();
+                    ctx.moveTo(i * divWidth, 0);
+                    ctx.lineTo(i * divWidth, canvas.height);
+                    ctx.stroke();
+                }
+                for (let j = 1; j < 6; j++) {
+                    ctx.beginPath();
+                    ctx.moveTo(0, j * divHeight);
+                    ctx.lineTo(canvas.width, j * divHeight);
+                    ctx.stroke();
+                }
+
+                // Draw Sine wave sound representation
+                ctx.strokeStyle = '#10b981';
+                ctx.lineWidth = 2.5;
+                ctx.beginPath();
+
+                for (let x = 0; x < canvas.width; x++) {
+                    const scaledFreq = freq / 10000;
+                    const y = (canvas.height / 2) + Math.sin((x * scaledFreq * Math.PI * 2) - time) * (ampLevel * 10);
+                    if (x === 0) ctx.moveTo(x, y);
+                    else ctx.lineTo(x, y);
+                }
+                ctx.stroke();
+
+                time += 0.05;
+                activeAnimId = requestAnimationFrame(drawCRO);
+            }
+            drawCRO();
+        }
+
+        // 4. Hydraulics Pascal multiplier simulator
+        function initHydraulicsSim() {
+            if (activeAnimId) cancelAnimationFrame(activeAnimId);
+            const canvas = document.getElementById('hydraulic-canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = canvas.parentElement.clientWidth;
+            canvas.height = canvas.parentElement.clientHeight;
+
+            const slider = document.getElementById('slider-hyd-force');
+
+            function drawHydraulics() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                const f1 = parseFloat(slider.value);
+                const a1 = 0.015;
+                const a2 = 0.450;
+                const pressure = f1 / a1;
+                const f2 = pressure * a2;
+
+                document.getElementById('val-hyd-force').textContent = f1 + ' N';
+                document.getElementById('val-hyd-out').innerHTML = `$F_2 = ${f2.toFixed(0)} \\text{ N}$`;
+                renderMathInElement(document.getElementById('val-hyd-out'));
+
+                const cy = canvas.height / 2;
+
+                // Draw Oil chamber background (Yellow fluid)
+                ctx.fillStyle = '#fef08a';
+                ctx.fillRect(20, cy + 10, canvas.width - 40, cy - 20);
+
+                // Small Piston (Left)
+                ctx.fillStyle = '#64748b';
+                ctx.fillRect(40, cy - 10, 30, 20);
+                // Large Piston (Right)
+                ctx.fillRect(canvas.width - 120, cy - 10, 80, 20);
+
+                // Piston casings/boundaries
+                ctx.strokeStyle = '#334155';
+                ctx.lineWidth = 4;
+                ctx.beginPath();
+                ctx.moveTo(35, cy - 40);
+                ctx.lineTo(35, cy + 30);
+                ctx.lineTo(canvas.width - 130, cy + 30);
+                ctx.lineTo(canvas.width - 130, cy - 40);
+                ctx.stroke();
+
+                // Vector Force Arrows
+                ctx.strokeStyle = '#ec4899';
+                ctx.lineWidth = 3;
+                
+                // Left input arrow (downward force)
+                ctx.beginPath();
+                ctx.moveTo(55, cy - 40);
+                ctx.lineTo(55, cy - 15);
+                ctx.lineTo(50, cy - 20);
+                ctx.moveTo(55, cy - 15);
+                ctx.lineTo(60, cy - 20);
+                ctx.stroke();
+
+                // Right output arrow (upward force multiplication)
+                ctx.strokeStyle = '#10b981';
+                ctx.beginPath();
+                ctx.moveTo(canvas.width - 80, cy - 15);
+                ctx.lineTo(canvas.width - 80, cy - 50);
+                ctx.lineTo(canvas.width - 85, cy - 45);
+                ctx.moveTo(canvas.width - 80, cy - 50);
+                ctx.lineTo(canvas.width - 75, cy - 45);
+                ctx.stroke();
+
+                activeAnimId = requestAnimationFrame(drawHydraulics);
+            }
+            drawHydraulics();
+        }
+
+        // ==========================================
+        // DYNAMIC SKETCHPAD NOTEPAD ENGINE
+        // ==========================================
+        const sketchpad = document.getElementById('sketchpad');
+        const sCtx = sketchpad.getContext('2d');
+        let drawing = false;
+
+        function initSketchpad() {
+            sketchpad.width = sketchpad.parentElement.clientWidth;
+            sketchpad.height = sketchpad.parentElement.clientHeight;
+            sCtx.strokeStyle = '#64748b';
+            sCtx.lineWidth = 1.5;
+            sCtx.lineCap = 'round';
+        }
+
+        sketchpad.addEventListener('mousedown', (e) => {
+            drawing = true;
+            sCtx.beginPath();
+            const rect = sketchpad.getBoundingClientRect();
+            sCtx.moveTo(e.clientX - rect.left, e.clientY - rect.top);
+        });
+
+        sketchpad.addEventListener('mousemove', (e) => {
+            if (!drawing) return;
+            const rect = sketchpad.getBoundingClientRect();
+            sCtx.lineTo(e.clientX - rect.left, e.clientY - rect.top);
+            sCtx.stroke();
+        });
+
+        sketchpad.addEventListener('mouseup', () => drawing = false);
+        sketchpad.addEventListener('mouseleave', () => drawing = false);
+
+        // Touch event support for iPad/mobile study devices
+        sketchpad.addEventListener('touchstart', (e) => {
+            drawing = true;
+            sCtx.beginPath();
+            const rect = sketchpad.getBoundingClientRect();
+            const touch = e.touches[0];
+            sCtx.moveTo(touch.clientX - rect.left, touch.clientY - rect.top);
+        });
+
+        sketchpad.addEventListener('touchmove', (e) => {
+            if (!drawing) return;
+            const rect = sketchpad.getBoundingClientRect();
+            const touch = e.touches[0];
+            sCtx.lineTo(touch.clientX - rect.left, touch.clientY - rect.top);
+            sCtx.stroke();
+        });
+
+        sketchpad.addEventListener('touchend', () => drawing = false);
+
+        function clearCanvas() {
+            sCtx.clearRect(0, 0, sketchpad.width, sketchpad.height);
+        }
+
+        function clearScratchpad() {
+            document.getElementById('notepad-text').value = '';
+            clearCanvas();
+        }
+
+        // Handle page layouts on start
+        window.addEventListener('load', () => {
+            initSketchpad();
+            switchTab('dashboard');
+        });
+        window.addEventListener('resize', initSketchpad);
+    </script>
+</body>
+</html>
